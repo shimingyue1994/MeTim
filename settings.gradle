@@ -1,2 +1,3 @@
 rootProject.name='MeTim'
 include ':app'
+include ':libtim'

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_left_user_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_left_user_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/avatar_male_44dp" />
+
+        <TextView
+            android:id="@+id/tv_read_status_other"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="已读"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_right_user_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_right_user_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/avatar_male_44dp" />
+
+        <TextView
+            android:id="@+id/tv_read_status_self"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="已读" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/ll_right_user_icon"
+        android:layout_toRightOf="@+id/ll_left_user_icon"
+        android:text="张三"
+        android:textColor="#606060"
+        android:textSize="11sp"
+        android:visibility="gone" />
+
+
+    <LinearLayout
+        android:id="@+id/ll_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_user_name"
+        android:layout_marginTop="5dp"
+        android:layout_toLeftOf="@+id/ll_right_user_icon"
+        android:layout_toRightOf="@+id/ll_left_user_icon"
+        android:background="@android:color/black"
+        android:minHeight="35dp"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:id="@+id/fl_msg_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/iv_message_status"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center_vertical"
+            android:scaleType="fitCenter"
+            android:src="@drawable/message_send_fail"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/pb_message_sending"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>
