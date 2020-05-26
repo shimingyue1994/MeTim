@@ -149,25 +149,28 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
 
             @Override
             public void onClick(final View v) {
-                clickCount++;
-                if (clickCount == 1)
-                    mFlMsgContent.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (clickCount >= 2)
-                                messageItemClick.onDoubleClickBubble(v, position, message);
-                            else
-                                messageItemClick.onClickBubble(v, position, message);
-                            clickCount = 0;
-                        }
-                    }, 210);
+                if (messageItemClick != null) {
+                    clickCount++;
+                    if (clickCount == 1)
+                        mFlMsgContent.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (clickCount >= 2)
+                                    messageItemClick.onDoubleClickBubble(v, position, message);
+                                else
+                                    messageItemClick.onClickBubble(v, position, message);
+                                clickCount = 0;
+                            }
+                        }, 210);
+                }
             }
         });
 
         mFlMsgContent.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                messageItemClick.onLongClickBubble(v, position, message);
+                if (messageItemClick != null)
+                    messageItemClick.onLongClickBubble(v, position, message);
                 return true;
             }
         });
@@ -175,20 +178,23 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
         mIvLeftAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                messageItemClick.onClickAvatar(v, position, message);
+                if (messageItemClick != null)
+                    messageItemClick.onClickAvatar(v, position, message);
             }
         });
         mIvRightAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                messageItemClick.onClickAvatar(v, position, message);
+                if (messageItemClick != null)
+                    messageItemClick.onClickAvatar(v, position, message);
             }
         });
 
         mIvLeftAvatar.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                messageItemClick.onLongClickAvatar(v, position, message);
+                if (messageItemClick != null)
+                    messageItemClick.onLongClickAvatar(v, position, message);
                 return true;
             }
         });
@@ -196,7 +202,8 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
         mIvRightAvatar.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                messageItemClick.onLongClickAvatar(v, position, message);
+                if (messageItemClick != null)
+                    messageItemClick.onLongClickAvatar(v, position, message);
                 return true;
             }
         });

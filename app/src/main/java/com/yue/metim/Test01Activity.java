@@ -39,11 +39,16 @@ import com.tencent.imsdk.v2.V2TIMSoundElem;
 import com.tencent.imsdk.v2.V2TIMTextElem;
 import com.tencent.imsdk.v2.V2TIMUserInfo;
 import com.tencent.imsdk.v2.V2TIMVideoElem;
+import com.yue.libtim.chat.interfaces.IMessageItemClick;
 import com.yue.libtim.chat.itembinder.TextElemBinder;
+import com.yue.libtim.chat.messagevo.BaseMsgElem;
 import com.yue.libtim.chat.messagevo.TextElemVO;
 import com.yue.metim.constants.User;
 import com.yue.metim.databinding.ActivityTest01Binding;
+import com.yue.metim.weight.msgpop.IMPopupView;
+import com.yue.metim.weight.msgpop.MsgPopAction;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,19 +75,19 @@ public class Test01Activity extends AppCompatActivity {
 
         V2TIMManager.getMessageManager().addAdvancedMsgListener(msgListener);
 
-
-        mAdapter.register(TextElemVO.class, new TextElemBinder());
+        TextElemBinder textElemBinder = new TextElemBinder();
+        textElemBinder.setItemClick(itemClickText);
+        mAdapter.register(TextElemVO.class, textElemBinder);
         mBinding.recycler.setLayoutManager(new LinearLayoutManager(this));
-//        mBinding.recycler. suppressLayout(false);
-//        mBinding.recycler. setItemViewCacheSize(0);
-//        mBinding.recycler.setHasFixedSize(true);
-//        mBinding.recycler.setFocusableInTouchMode(false);
+        mBinding.recycler.suppressLayout(false);
+        mBinding.recycler.setItemViewCacheSize(0);
+        mBinding.recycler.setHasFixedSize(true);
+        mBinding.recycler.setFocusableInTouchMode(false);
         mBinding.recycler.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                 super.getItemOffsets(outRect, view, parent, state);
-                outRect.top = 0;
-                outRect.bottom = 0;
+                outRect.bottom = 20;
             }
         });
         mBinding.recycler.setAdapter(mAdapter);
@@ -109,7 +114,7 @@ public class Test01Activity extends AppCompatActivity {
                         public void onSuccess(List<V2TIMMessage> v2TIMMessages) {
                             mBinding.progress.setVisibility(View.GONE);
                             mBinding.tvStatus.setText("加载成功" + v2TIMMessages.size());
-//                            Collections.reverse(v2TIMMessages);
+                            Collections.reverse(v2TIMMessages);
                             if (v2TIMMessages.size() > 0)
                                 lastMessage = v2TIMMessages.get(0);
                             for (V2TIMMessage timMessage : v2TIMMessages) {
@@ -279,4 +284,34 @@ public class Test01Activity extends AppCompatActivity {
         }
 
     }
+
+    private IMessageItemClick itemClickText = new IMessageItemClick() {
+        @Override
+        public void onClickAvatar(View view, int position, BaseMsgElem timMessage) {
+
+        }
+
+        @Override
+        public void onLongClickAvatar(View view, int position, BaseMsgElem timMessage) {
+
+        }
+
+        @Override
+        public void onClickBubble(View view, int position, BaseMsgElem timMessage) {
+
+        }
+
+        @Override
+        public void onDoubleClickBubble(View view, int position, BaseMsgElem timMessage) {
+
+        }
+
+        @Override
+        public void onLongClickBubble(View view, int position, BaseMsgElem timMessage) {
+            List<MsgPopAction> list = new ArrayList<>();
+            list.add(new MsgPopAction("重发"));
+            IMPopupView imPopupView = new IMPopupView();
+            imPopupView.showPopBingZheng(view, list);
+        }
+    };
 }

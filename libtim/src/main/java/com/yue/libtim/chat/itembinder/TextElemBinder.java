@@ -23,42 +23,24 @@ import me.drakeet.multitype.ItemViewBinder;
  * @desc 文本消息元素展示
  */
 public class TextElemBinder extends ItemViewBinder<TextElemVO, TextElemHolder> {
+    private IMessageItemClick itemClick;
+
+
+    public void setItemClick(IMessageItemClick itemClick) {
+        this.itemClick = itemClick;
+    }
+
     @NonNull
     @Override
     protected TextElemHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
-        TextElemHolder holder = new TextElemHolder(MessageContentHolder.getView(inflater,parent));
+        TextElemHolder holder = new TextElemHolder(MessageContentHolder.getView(inflater, parent));
         return holder;
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull final TextElemHolder holder, @NonNull TextElemVO item) {
+    protected void onBindViewHolder(@NonNull final TextElemHolder holder, @NonNull final TextElemVO item) {
         holder.showChatTime(item, getAdapter(), holder.getLayoutPosition());
-        holder.showAvatars(item, getAdapter(), holder.getLayoutPosition(), new IMessageItemClick() {
-            @Override
-            public void onClickAvatar(View view, int position, BaseMsgElem timMessage) {
-                Toast.makeText(holder.itemView.getContext(), "头像点击", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onLongClickAvatar(View view, int position, BaseMsgElem timMessage) {
-                Toast.makeText(holder.itemView.getContext(), "头像长按", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onClickBubble(View view, int position, BaseMsgElem timMessage) {
-                Toast.makeText(holder.itemView.getContext(), "气泡点击", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onDoubleClickBubble(View view, int position, BaseMsgElem timMessage) {
-                Toast.makeText(holder.itemView.getContext(), "气泡双击", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onLongClickBubble(View view, int position, BaseMsgElem timMessage) {
-                Toast.makeText(holder.itemView.getContext(), "气泡长按", Toast.LENGTH_SHORT).show();
-            }
-        });
+        holder.showAvatars(item, getAdapter(), holder.getLayoutPosition(),itemClick);
         V2TIMTextElem elem = (V2TIMTextElem) item.getTimElem();
         holder.showMessage(elem);
     }
