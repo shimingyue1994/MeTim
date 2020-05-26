@@ -12,7 +12,6 @@
         android:gravity="center_vertical"
         android:padding="10dp"
         android:text="哈哈哈"
-        android:textColor="@android:color/black"
         android:textSize="15sp" />
 </LinearLayout>
 

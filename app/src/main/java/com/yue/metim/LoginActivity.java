@@ -28,7 +28,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_login);
         mBinding.btnLogin.setOnClickListener(v -> {
-            login();
+            login(User.userId01, User.userSign01);
+        });
+        mBinding.btnLogin2.setOnClickListener(v -> {
+            login(User.userId02, User.userSign02);
         });
 
         mBinding.btnLogout.setOnClickListener(v -> {
@@ -37,10 +40,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void login() {
+    private void login(String userId, String userSign) {
         mBinding.progress.setVisibility(View.VISIBLE);
         mBinding.tvStatus.setText("登录中...");
-        V2TIMManager.getInstance().login(User.userId01, User.userSign01, new V2TIMCallback() {
+        V2TIMManager.getInstance().login(userId, userSign, new V2TIMCallback() {
             @Override
             public void onError(int code, String message) {
                 mBinding.progress.setVisibility(View.GONE);
@@ -52,6 +55,10 @@ public class LoginActivity extends AppCompatActivity {
                 mBinding.progress.setVisibility(View.GONE);
                 mBinding.tvStatus.setText("登录成功");
                 Intent intent = new Intent(LoginActivity.this, Test01Activity.class);
+                if (User.userId02.equals(userId))
+                    intent.putExtra("identify", User.userId01);
+                else
+                    intent.putExtra("identify", User.userId02);
                 startActivity(intent);
             }
         });
@@ -59,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void logout() {
         mBinding.progress.setVisibility(View.VISIBLE);
-        mBinding.tvStatus.setText("登录中...");
+        mBinding.tvStatus.setText("退出中...");
         V2TIMManager.getInstance().logout(new V2TIMCallback() {
             @Override
             public void onError(int i, String s) {

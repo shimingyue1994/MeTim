@@ -26,6 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="已读"
+            android:textSize="8sp"
             android:visibility="gone" />
     </LinearLayout>
 
@@ -68,10 +69,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_user_name"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
         android:layout_toLeftOf="@+id/ll_right_user_icon"
         android:layout_toRightOf="@+id/ll_left_user_icon"
-        android:background="@android:color/black"
         android:minHeight="35dp"
         android:orientation="horizontal">
 

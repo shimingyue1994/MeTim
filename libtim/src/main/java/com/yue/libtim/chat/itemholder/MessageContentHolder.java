@@ -60,8 +60,8 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
 
         mTvUserName = itemView.findViewById(R.id.tv_user_name);
 
-        mProgressSending = itemView.findViewById(R.id.iv_message_status);
-        mIvMsgStatus = itemView.findViewById(R.id.pb_message_sending);
+        mIvMsgStatus = itemView.findViewById(R.id.iv_message_status);
+        mProgressSending = itemView.findViewById(R.id.pb_message_sending);
 
 
         mLlMsg = itemView.findViewById(R.id.ll_msg);
@@ -162,17 +162,5 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
      * @return
      */
     public abstract int messageContentView();
-
-    /**
-     * holder 初始化时加载的view
-     *
-     * @param inflater
-     * @param parent
-     * @return
-     */
-    public static View getView(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
-        View view = inflater.inflate(R.layout.item_message_content, parent, false);
-        return view;
-    }
 
 }

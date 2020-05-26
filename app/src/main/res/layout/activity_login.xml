@@ -30,6 +30,13 @@
             android:text="登录" />
 
         <Button
+            android:id="@+id/btn_login2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="登录2" />
+
+
+        <Button
             android:id="@+id/btn_logout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -56,7 +56,7 @@ public abstract class MessageEmptyHolder extends RecyclerView.ViewHolder {
         //// 时间线设置
         final V2TIMMessage timMsg = msg.getTimMessage();
 
-        if (position > 1 && adapter != null) {
+        if (position >= 1 && adapter != null) {
             BaseMsgElem last = (BaseMsgElem) adapter.getItems().get(position - 1);
             if (last.getTimMessage() != null) {
                 /*5分钟设置*/
