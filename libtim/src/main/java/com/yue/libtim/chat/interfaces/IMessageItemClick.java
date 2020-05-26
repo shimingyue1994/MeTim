@@ -41,6 +41,15 @@ public interface IMessageItemClick {
     void onClickBubble(View view, int position, BaseMsgElem timMessage);
 
     /**
+     * 气泡双击
+     *
+     * @param view
+     * @param position
+     * @param timMessage
+     */
+    void onDoubleClickBubble(View view, int position, BaseMsgElem timMessage);
+
+    /**
      * 气泡长按
      *
      * @param view

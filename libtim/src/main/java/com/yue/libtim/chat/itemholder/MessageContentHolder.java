@@ -1,7 +1,9 @@
 package com.yue.libtim.chat.itemholder;
 
 import android.text.TextUtils;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -141,6 +143,64 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
         } else {
             mIvMsgStatus.setVisibility(View.GONE);
         }
+
+        mFlMsgContent.setOnClickListener(new View.OnClickListener() {
+            int clickCount = 0;
+
+            @Override
+            public void onClick(final View v) {
+                clickCount++;
+                if (clickCount == 1)
+                    mFlMsgContent.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (clickCount >= 2)
+                                messageItemClick.onDoubleClickBubble(v, position, message);
+                            else
+                                messageItemClick.onClickBubble(v, position, message);
+                            clickCount = 0;
+                        }
+                    }, 210);
+            }
+        });
+
+        mFlMsgContent.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                messageItemClick.onLongClickBubble(v, position, message);
+                return true;
+            }
+        });
+
+        mIvLeftAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                messageItemClick.onClickAvatar(v, position, message);
+            }
+        });
+        mIvRightAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                messageItemClick.onClickAvatar(v, position, message);
+            }
+        });
+
+        mIvLeftAvatar.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                messageItemClick.onLongClickAvatar(v, position, message);
+                return true;
+            }
+        });
+
+        mIvRightAvatar.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                messageItemClick.onLongClickAvatar(v, position, message);
+                return true;
+            }
+        });
+
 
     }
 

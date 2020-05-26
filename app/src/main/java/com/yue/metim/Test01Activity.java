@@ -113,7 +113,7 @@ public class Test01Activity extends AppCompatActivity {
                             if (v2TIMMessages.size() > 0)
                                 lastMessage = v2TIMMessages.get(0);
                             for (V2TIMMessage timMessage : v2TIMMessages) {
-                                handleMsg(timMessage,true);
+                                handleMsg(timMessage, true);
                             }
 
                             mAdapter.notifyDataSetChanged();
@@ -172,7 +172,7 @@ public class Test01Activity extends AppCompatActivity {
             if (!TextUtils.equals(userId, identify)) {
                 return;
             }
-            handleMsg(msg,false);
+            handleMsg(msg, false);
             mAdapter.notifyDataSetChanged();
             mBinding.recycler.scrollToPosition(mItems.size() - 1);
         }
@@ -197,6 +197,10 @@ public class Test01Activity extends AppCompatActivity {
      * @param isLoadHis
      */
     private void handleMsg(V2TIMMessage msg, boolean isLoadHis) {
+        if (msg.getStatus() == V2TIM_MSG_STATUS_HAS_DELETED || msg.getStatus() == V2TIM_MSG_STATUS_LOCAL_REVOKED) {
+            /*被删除或失败的消息不展示*/
+            return;
+        }
 
         V2TIMElem elem = null;
         switch (msg.getElemType()) {

@@ -84,8 +84,8 @@
 
         <ImageView
             android:id="@+id/iv_message_status"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_gravity="center_vertical"
             android:scaleType="fitCenter"
             android:src="@drawable/message_send_fail"
@@ -93,8 +93,8 @@
 
         <ProgressBar
             android:id="@+id/pb_message_sending"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_gravity="center_vertical"
             android:visibility="gone" />
 
