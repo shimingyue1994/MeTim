@@ -9,7 +9,7 @@ import com.tencent.imsdk.v2.V2TIMTextElem;
  * @create 2020/5/25 15:36
  * @desc 文本消息面
  */
-public class TextElemVO extends BaseMsgElem<String> {
+public class TextElemVO extends BaseMsgElem<String,V2TIMTextElem> {
 
     public TextElemVO(V2TIMMessage timMessage, V2TIMTextElem elem) {
         super(timMessage, elem);

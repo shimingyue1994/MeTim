@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
@@ -22,6 +23,7 @@ import com.tencent.imsdk.TIMMessageListener;
 import com.tencent.imsdk.TIMTextElem;
 import com.tencent.imsdk.TIMValueCallBack;
 import com.tencent.imsdk.v2.V2TIMAdvancedMsgListener;
+import com.tencent.imsdk.v2.V2TIMCallback;
 import com.tencent.imsdk.v2.V2TIMCustomElem;
 import com.tencent.imsdk.v2.V2TIMElem;
 import com.tencent.imsdk.v2.V2TIMFaceElem;
@@ -76,7 +78,7 @@ public class Test01Activity extends AppCompatActivity {
         V2TIMManager.getMessageManager().addAdvancedMsgListener(msgListener);
 
         TextElemBinder textElemBinder = new TextElemBinder();
-        textElemBinder.setItemClick(itemClickText);
+        textElemBinder.setItemClick(messageItemClick);
         mAdapter.register(TextElemVO.class, textElemBinder);
         mBinding.recycler.setLayoutManager(new LinearLayoutManager(this));
         mBinding.recycler.suppressLayout(false);
@@ -202,10 +204,26 @@ public class Test01Activity extends AppCompatActivity {
      * @param isLoadHis
      */
     private void handleMsg(V2TIMMessage msg, boolean isLoadHis) {
-        if (msg.getStatus() == V2TIM_MSG_STATUS_HAS_DELETED || msg.getStatus() == V2TIM_MSG_STATUS_LOCAL_REVOKED) {
+        if (msg.getStatus() == V2TIM_MSG_STATUS_HAS_DELETED) {
             /*被删除或失败的消息不展示*/
             return;
         }
+
+        if (msg.getStatus() == V2TIM_MSG_STATUS_LOCAL_REVOKED) {
+            /*被撤回的消息处理*/
+            V2TIMElem elem = msg.getTextElem();
+            if (elem != null) {
+                handleElem(msg, elem, isLoadHis);
+            }
+            if (msg.getElemType() != V2TIM_ELEM_TYPE_NONE && elem != null) {
+                /*判断是否还有下一个元素 因为存在一个消息多个元素的情况，但这种情况极少出现，除了特别奇葩的设定*/
+                while (elem.getNextElem() != null) {
+                    handleElem(msg, elem.getNextElem(), isLoadHis);
+                }
+            }
+            return;
+        }
+
 
         V2TIMElem elem = null;
         switch (msg.getElemType()) {
@@ -246,6 +264,7 @@ public class Test01Activity extends AppCompatActivity {
             handleElem(msg, elem, isLoadHis);
         }
         if (msg.getElemType() != V2TIM_ELEM_TYPE_NONE && elem != null) {
+            /*判断是否还有下一个元素 因为存在一个消息多个元素的情况，但这种情况极少出现，除了特别奇葩的设定*/
             while (elem.getNextElem() != null) {
                 handleElem(msg, elem.getNextElem(), isLoadHis);
             }
@@ -254,7 +273,11 @@ public class Test01Activity extends AppCompatActivity {
 
 
     /**
-     * 处理下一个
+     * 处理消息中的元素并显示
+     *
+     * @param msg       实际消息对象
+     * @param elem      消息中的某一个元素
+     * @param isLoadHis 是否是加载消息
      */
     private void handleElem(V2TIMMessage msg, V2TIMElem elem, boolean isLoadHis) {
         if (elem instanceof V2TIMTextElem) {
@@ -285,7 +308,7 @@ public class Test01Activity extends AppCompatActivity {
 
     }
 
-    private IMessageItemClick itemClickText = new IMessageItemClick() {
+    private IMessageItemClick messageItemClick = new IMessageItemClick() {
         @Override
         public void onClickAvatar(View view, int position, BaseMsgElem timMessage) {
 
@@ -309,9 +332,82 @@ public class Test01Activity extends AppCompatActivity {
         @Override
         public void onLongClickBubble(View view, int position, BaseMsgElem timMessage) {
             List<MsgPopAction> list = new ArrayList<>();
-            list.add(new MsgPopAction("重发"));
+            if (timMessage.getTimMessage().getStatus() == V2TIM_MSG_STATUS_SEND_FAIL) {
+                list.add(new MsgPopAction("重发", () -> {
+                    Toast.makeText(Test01Activity.this, "重发", Toast.LENGTH_SHORT).show();
+                    handleMsgRepeat(position, timMessage);
+                }));
+                list.add(new MsgPopAction("删除", () -> {
+                    mItems.remove(position);
+                    mAdapter.notifyDataSetChanged();
+                }));
+            }
+            if (timMessage.getTimMessage().isSelf()) {
+                list.add(new MsgPopAction("撤回", () -> {
+
+                }));
+            }
             IMPopupView imPopupView = new IMPopupView();
-            imPopupView.showPopBingZheng(view, list);
+            imPopupView.showPopMsgAction(view, list);
         }
     };
+
+
+    private void handleMsgRevoke(int position, BaseMsgElem msgElem) {
+        V2TIMManager.getMessageManager().revokeMessage(msgElem.getTimMessage(), new V2TIMCallback() {
+            @Override
+            public void onError(int code, String desc) {
+                // 撤回消息失败
+                Toast.makeText(Test01Activity.this, "撤回失败", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSuccess() {
+                // 撤回消息成功
+                for (int i = 0; i < mItems.size(); i++) {
+                    BaseMsgElem msgElem1 = (BaseMsgElem) mItems.get(i);
+                    if (msgElem1.getTimMessage().getMsgID().equals(msgElem.getTimMessage().getMsgID())) {
+                        mItems.add()
+                        mItems.remove(i);
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    /**
+     * 消息重发
+     */
+    private void handleMsgRepeat(int position, BaseMsgElem timMessage) {
+        mItems.remove(position);
+        mItems.add(timMessage);
+        mAdapter.notifyDataSetChanged();
+        mBinding.recycler.scrollToPosition(mItems.size() - 1);
+        V2TIMManager.getMessageManager().sendMessage(timMessage.getTimMessage(), identify, "",
+                V2TIM_PRIORITY_DEFAULT, true, null,
+                new V2TIMSendCallback<V2TIMMessage>() {
+                    @Override
+                    public void onProgress(int i) {
+                        mBinding.tvStatus.setText("发送中" + i);
+                        mBinding.progress.setVisibility(View.VISIBLE);
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(int i, String s) {
+                        mBinding.tvStatus.setText("发送失败" + i + s);
+                        mBinding.progress.setVisibility(View.GONE);
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onSuccess(V2TIMMessage v2TIMMessage) {
+                        mBinding.tvStatus.setText("发送成功");
+                        mBinding.progress.setVisibility(View.GONE);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+
+    }
 }

@@ -20,5 +20,10 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         });
+
+        mBinding.btnTest2.setOnClickListener((v) -> {
+            Intent intent = new Intent(this, Test2Activity.class);
+            startActivity(intent);
+        });
     }
 }

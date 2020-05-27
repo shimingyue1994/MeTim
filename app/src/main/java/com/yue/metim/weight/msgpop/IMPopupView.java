@@ -36,11 +36,11 @@ public class IMPopupView {
 
 
     @SuppressLint("WrongConstant")
-    public void showPopBingZheng(View anchorView, List<MsgPopAction> list) {
+    public void showPopMsgAction(View anchorView, List<MsgPopAction> list) {
         Context context = anchorView.getContext();
         View view = LayoutInflater.from(context).inflate(
                 R.layout.popup_msg_action, null);// 要弹出的pop布局
-        PopupWindow popupWindow = new PopupWindow(view, anchorView.getMeasuredWidth(),
+        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);// 将布局添加到popupwindow中
         /*pop不能被输入法上顶*/
         popupWindow.setSoftInputMode(PopupWindow.INPUT_METHOD_NEEDED);
@@ -59,7 +59,7 @@ public class IMPopupView {
 
         recyclerView.setAdapter(listAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+//        recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
 
         listAdapter.notifyDataSetChanged();
         /**
@@ -94,6 +94,9 @@ public class IMPopupView {
         public void onBindViewHolder(@NonNull MyHolder holder, int position) {
             MsgPopAction action = mList.get(position);
             holder.tvAction.setText(action.getActionName());
+            holder.tvAction.setOnClickListener(v -> {
+                action.getOnMsgActionListener().onActionClick();
+            });
         }
 
         @Override

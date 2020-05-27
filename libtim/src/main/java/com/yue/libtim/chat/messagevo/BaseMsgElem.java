@@ -10,9 +10,9 @@ import com.tencent.imsdk.v2.V2TIMMessage;
 /**
  * @author shimy
  * @create 2019/7/2 16:11
- * @desc 消息基类
+ * @desc 消息元素基类 因为存在一个消息中多个元素的问题（很少出现这种情况），所以一个元素一个列
  */
-public class BaseMsgElem<T> {
+public class BaseMsgElem<T, E extends V2TIMElem> {
 
     /**
      * 消息内容下载中状态
@@ -30,7 +30,7 @@ public class BaseMsgElem<T> {
     @NonNull
     private V2TIMMessage timMessage;//原始消息
 
-    private V2TIMElem timElem;//消息中的元素，存在一个消息中多个元素的问题
+    private E timElem;//消息中的某一个元素，存在一个消息中多个元素的问题,但是正经人几乎不会这么干
 
     /**
      * 额外数据
@@ -39,7 +39,11 @@ public class BaseMsgElem<T> {
      */
     private T extra;
 
-    public BaseMsgElem(V2TIMMessage timMessage, V2TIMElem timElem) {
+    /**
+     * @param timMessage 消息
+     * @param timElem    这一条目的元素
+     */
+    public BaseMsgElem(V2TIMMessage timMessage, E timElem) {
         this.timMessage = timMessage;
         this.timElem = timElem;
         parseTIMMessage(timMessage);
@@ -62,11 +66,11 @@ public class BaseMsgElem<T> {
         this.extra = extra;
     }
 
-    public V2TIMElem getTimElem() {
+    public E getTimElem() {
         return timElem;
     }
 
-    public void setTimElem(V2TIMElem timElem) {
+    public void setTimElem(E timElem) {
         this.timElem = timElem;
     }
 
