@@ -47,6 +47,7 @@ public class AppApplication extends Application {
         super.onCreate();
         init();
         Constants.COMPRESS_IMAGE_CACHE = getExternalFilesDir("compress_image_cache").getAbsolutePath();
+        Constants.SANDBOX_COPY = getExternalFilesDir("sandboxcopy").getAbsolutePath();
     }
 
 
