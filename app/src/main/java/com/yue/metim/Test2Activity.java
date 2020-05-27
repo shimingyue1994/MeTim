@@ -127,8 +127,13 @@ public class Test2Activity extends AppCompatActivity {
                         Toast.makeText(this, "未找到图片", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
+                    mSourcePath = selectList2.get(0).getPath();
+                    Glide.with(Test2Activity.this)
+                            .load(mSourcePath)
+                            .into(mBinding.ivShow);
                     new Thread(() -> {
-                        mSourcePath = selectList2.get(0).getPath();
+
                         String newPath = AndroidQTransformUtils.copyPathToAndroidQ3(Test2Activity.this, mSourcePath);
                         if (TextUtils.isEmpty(newPath)) {
                             runOnUiThread(new Runnable() {
@@ -176,9 +181,9 @@ public class Test2Activity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Glide.with(Test2Activity.this)
-                                            .load(file)
-                                            .into(mBinding.ivShow);
+//                                    Glide.with(Test2Activity.this)
+//                                            .load(file)
+//                                            .into(mBinding.ivShow);
                                 }
                             });
 
