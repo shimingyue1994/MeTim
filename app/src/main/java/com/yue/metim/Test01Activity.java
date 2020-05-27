@@ -367,7 +367,7 @@ public class Test01Activity extends AppCompatActivity {
                 for (int i = 0; i < mItems.size(); i++) {
                     BaseMsgElem msgElem1 = (BaseMsgElem) mItems.get(i);
                     if (msgElem1.getTimMessage().getMsgID().equals(msgElem.getTimMessage().getMsgID())) {
-                        mItems.add()
+//                        mItems.add()
                         mItems.remove(i);
                     }
                 }

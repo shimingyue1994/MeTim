@@ -3,8 +3,14 @@
 buildscript {
     
     repositories {
-        google()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/gradle-plugin' }
         jcenter()
+        mavenCentral()
+        google()
+        maven { url 'https://jitpack.io' }
         
     }
     dependencies {
@@ -18,8 +24,15 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/gradle-plugin' }
+
         jcenter()
+        mavenCentral()
+        google()
+        maven { url 'https://jitpack.io' }
         
     }
 }

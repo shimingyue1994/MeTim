@@ -2,6 +2,7 @@ package com.yue.metim;
 
 import android.app.Application;
 import android.content.Context;
+import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Toast;
 
@@ -39,10 +40,13 @@ public class AppApplication extends Application {
             }
         });
     }
+
+
     @Override
     public void onCreate() {
         super.onCreate();
         init();
+        Constants.COMPRESS_IMAGE_CACHE = getExternalFilesDir("compress_image_cache").getAbsolutePath();
     }
 
 
