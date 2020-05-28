@@ -3,8 +3,8 @@ package com.yue.libtim;
 import android.os.Environment;
 
 public class TUIKitConstants {
-    public static String SD_CARD_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
-    public static String APP_DIR = SD_CARD_PATH + "/" + TUIKit.getAppContext().getPackageName();
+    public static String SD_CARD_PATH = TUIKit.getAppContext().getExternalFilesDir("imchat").getAbsolutePath();
+    public static String APP_DIR = SD_CARD_PATH;
 
 
     /*录音*/
@@ -15,8 +15,8 @@ public class TUIKitConstants {
     public static String VIDEO_DOWNLOAD_DIR = APP_DIR + "/video/download/";
     /*图片路径*/
     public static String IMAGE_BASE_DIR = APP_DIR + "/image/";
-    /*图片下载存放路径*/
-    public static String IMAGE_DOWNLOAD_DIR = IMAGE_BASE_DIR + "download/";
+    /*消息图片存放路径*/
+    public static String IMAGE_MESSAGE_DIR = IMAGE_BASE_DIR + "message/";
     /*多媒体*/
     public static String MEDIA_DIR = APP_DIR + "/media";
     /*文件下载路径*/

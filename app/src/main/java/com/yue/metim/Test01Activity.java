@@ -1,12 +1,15 @@
 package com.yue.metim;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,6 +17,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 import com.tencent.imsdk.TIMConversation;
@@ -43,13 +50,16 @@ import com.tencent.imsdk.v2.V2TIMTextElem;
 import com.tencent.imsdk.v2.V2TIMUserInfo;
 import com.tencent.imsdk.v2.V2TIMVideoElem;
 import com.yue.libtim.chat.interfaces.IMessageItemClick;
+import com.yue.libtim.chat.itembinder.ImageElemBinder;
 import com.yue.libtim.chat.itembinder.RevokeElemBinder;
 import com.yue.libtim.chat.itembinder.TextElemBinder;
 import com.yue.libtim.chat.messagevo.BaseMsgElem;
+import com.yue.libtim.chat.messagevo.ImageElemVO;
 import com.yue.libtim.chat.messagevo.RevokeElemVO;
 import com.yue.libtim.chat.messagevo.TextElemVO;
 import com.yue.metim.constants.User;
 import com.yue.metim.databinding.ActivityTest01Binding;
+import com.yue.metim.utils.GlideEngine;
 import com.yue.metim.weight.msgpop.IMPopupView;
 import com.yue.metim.weight.msgpop.MsgPopAction;
 
@@ -72,6 +82,7 @@ public class Test01Activity extends AppCompatActivity {
     /*最后一条消息，用于加载消息使用*/
     private V2TIMMessage lastMessage = null;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,10 +96,10 @@ public class Test01Activity extends AppCompatActivity {
         mAdapter.register(TextElemVO.class, textElemBinder);
         RevokeElemBinder revokeElemBinder = new RevokeElemBinder();
         revokeElemBinder.setOnRevokeListener((position, item) -> {
-
             handleDelete(item);
         });
         mAdapter.register(RevokeElemVO.class, revokeElemBinder);
+        mAdapter.register(ImageElemVO.class,new ImageElemBinder());
         mBinding.recycler.setLayoutManager(new LinearLayoutManager(this));
         mBinding.recycler.suppressLayout(false);
         mBinding.recycler.setItemViewCacheSize(0);
@@ -104,6 +115,8 @@ public class Test01Activity extends AppCompatActivity {
         mBinding.recycler.setAdapter(mAdapter);
         sends();
         mBinding.refresh.setEnableLoadMore(false);
+
+
         mBinding.refresh.setOnRefreshListener(refreshLayout -> {
             V2TIMManager.getInstance().getMessageManager().getC2CHistoryMessageList(identify.equals(User.userId01) ? User.userId02 : User.userId01,
                     10, lastMessage, new V2TIMSendCallback<List<V2TIMMessage>>() {
@@ -176,6 +189,55 @@ public class Test01Activity extends AppCompatActivity {
                         }
                     });
         });
+        mBinding.btnSendImage.setOnClickListener(v -> {
+            PictureSelector.create(this)
+                    .openGallery(PictureMimeType.ofImage())
+                    .maxSelectNum(1)// 最大图片选择数量 int
+                    .isCompress(true)// 是否压缩 true or false
+                    .isCamera(true)// 是否显示拍照按钮 true or false
+//                    .cutOutQuality(90)
+                    .synOrAsy(true)
+                    .imageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .forResult(PictureConfig.CHOOSE_REQUEST);
+        });
+    }
+
+
+    private void sendImage(String path) {
+        /*发送图片消息*/
+        V2TIMMessage timMessage = V2TIMManager.getMessageManager().createImageMessage(path);
+        V2TIMImageElem imageElem = timMessage.getImageElem();
+        ImageElemVO imageElemVO = new ImageElemVO(timMessage, imageElem);
+        mItems.add(imageElemVO);
+        mAdapter.notifyDataSetChanged();
+        int position = mItems.size() - 1;
+        mBinding.recycler.scrollToPosition(mItems.size() - 1);
+        V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
+                V2TIM_PRIORITY_DEFAULT, true, null,
+                new V2TIMSendCallback<V2TIMMessage>() {
+                    @Override
+                    public void onProgress(int i) {
+                        mBinding.tvStatus.setText("发送中" + i);
+                        mBinding.progress.setVisibility(View.VISIBLE);
+                        imageElemVO.setSendProgress(i);
+                        mAdapter.notifyItemChanged(position);
+                    }
+
+                    @Override
+                    public void onError(int i, String s) {
+                        mBinding.tvStatus.setText("发送失败" + i + s);
+                        mBinding.progress.setVisibility(View.GONE);
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onSuccess(V2TIMMessage v2TIMMessage) {
+                        mBinding.tvStatus.setText("发送成功");
+                        mBinding.progress.setVisibility(View.GONE);
+                        mAdapter.notifyDataSetChanged();
+                        mBinding.recycler.scrollToPosition(mItems.size() - 1);
+                    }
+                });
     }
 
 
@@ -300,8 +362,8 @@ public class Test01Activity extends AppCompatActivity {
      * @param isLoadHis 是否是加载消息
      */
     private void handleElem(V2TIMMessage msg, V2TIMElem elem, boolean isLoadHis) {
-
         if (msg.getStatus() == V2TIM_MSG_STATUS_LOCAL_REVOKED) {
+            /*撤回的消息需要单独处理*/
             RevokeElemVO revokeElemVO = new RevokeElemVO(msg, elem);
             mItems.add(revokeElemVO);
             return;
@@ -316,7 +378,13 @@ public class Test01Activity extends AppCompatActivity {
                 mItems.add(textElemVO);
             }
         } else if (elem instanceof V2TIMImageElem) {
-
+            V2TIMImageElem imageElem = (V2TIMImageElem) elem;
+            ImageElemVO imageElemVO = new ImageElemVO(msg, imageElem);
+            if (isLoadHis) {
+                mItems.add(0, imageElemVO);
+            } else {
+                mItems.add(imageElemVO);
+            }
         } else if (elem instanceof V2TIMSoundElem) {
 
         } else if (elem instanceof V2TIMVideoElem) {
@@ -480,6 +548,19 @@ public class Test01Activity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case PictureConfig.CHOOSE_REQUEST: {
+                    List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
+                    sendImage(selectList.get(0).getCompressPath());
+                }
+                break;
+            }
+        }
+    }
 
     private AlertDialog mDialogTip;
 

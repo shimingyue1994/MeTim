@@ -18,6 +18,7 @@ import com.tencent.imsdk.v2.V2TIMManager;
 import com.tencent.imsdk.v2.V2TIMSDKConfig;
 import com.tencent.imsdk.v2.V2TIMSDKListener;
 import com.tencent.imsdk.v2.V2TIMUserFullInfo;
+import com.yue.libtim.TUIKit;
 import com.yue.metim.constants.Constants;
 
 public class AppApplication extends Application {
@@ -45,6 +46,7 @@ public class AppApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        TUIKit.init(this);
         init();
         Constants.COMPRESS_IMAGE_CACHE = getExternalFilesDir("compress_image_cache").getAbsolutePath();
         Constants.SANDBOX_COPY = getExternalFilesDir("sandboxcopy").getAbsolutePath();
