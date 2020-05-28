@@ -1,6 +1,7 @@
 package com.yue.libtim.chat.itemholder;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -22,6 +23,8 @@ import com.tencent.imsdk.TIMManager;
 import com.tencent.imsdk.TIMMessage;
 import com.tencent.imsdk.TIMMessageStatus;
 import com.tencent.imsdk.TIMUserProfile;
+import com.tencent.imsdk.v2.V2TIMCallback;
+import com.tencent.imsdk.v2.V2TIMManager;
 import com.tencent.imsdk.v2.V2TIMMessage;
 import com.yue.libtim.R;
 import com.yue.libtim.chat.interfaces.IMessageItemClick;
@@ -46,6 +49,8 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
     public LinearLayout mLlMsg;//消息布局
     public FrameLayout mFlMsgContent;//消息内容布局
 
+    private TextView mTvReadStatusSelf;//自己的消息的已读状态
+
 
     /*消息不同状态时显示的不同的view*/
     public ProgressBar mProgressSending;//消息发送中的progress
@@ -68,6 +73,8 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
 
         mLlMsg = itemView.findViewById(R.id.ll_msg);
         mFlMsgContent = itemView.findViewById(R.id.fl_msg_content);
+
+        mTvReadStatusSelf = itemView.findViewById(R.id.tv_read_status_self);
         /*将消息内容布局设置*/
         View.inflate(itemView.getContext(), messageContentView(), mFlMsgContent);
     }
@@ -144,6 +151,31 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
             mIvMsgStatus.setVisibility(View.GONE);
         }
 
+
+        if (msg.isSelf()) {
+            if (msg.isRead() || message.isLocalRead()) {
+                mTvReadStatusSelf.setText("已读");
+                mTvReadStatusSelf.setTextColor(mTvReadStatusSelf.getContext().getResources().getColor(android.R.color.darker_gray));
+            } else {
+                mTvReadStatusSelf.setText("未读");
+                mTvReadStatusSelf.setTextColor(0xff2e87e4);
+            }
+        } else {
+            //将来自 haven 的消息均标记为已读
+            V2TIMManager.getMessageManager().markC2CMessageAsRead(msg.getUserID(), new V2TIMCallback() {
+                @Override
+                public void onError(int code, String desc) {
+                    // 设置消息已读失败
+                    Log.i("shimy", "已读标记失败：" + code + desc);
+                }
+
+                @Override
+                public void onSuccess() {
+                    // 设置消息已读成功
+                    Log.i("shimy", "已读标记成功");
+                }
+            });
+        }
         mFlMsgContent.setOnClickListener(new View.OnClickListener() {
             int clickCount = 0;
 

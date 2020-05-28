@@ -138,6 +138,8 @@ public class Test01Activity extends AppCompatActivity {
                         }
                     });
         });
+
+
     }
 
     private void sends() {
@@ -193,15 +195,39 @@ public class Test01Activity extends AppCompatActivity {
             mBinding.recycler.scrollToPosition(mItems.size() - 1);
         }
 
-        /*对方的已读回执*/
+        /*对方的已读回执 目前仅C2C支持*/
         @Override
         public void onRecvC2CReadReceipt(List<V2TIMMessageReceipt> receiptList) {
             super.onRecvC2CReadReceipt(receiptList);
+            long maxTimestamp = 0;//最大时间戳
+            // 由于接收方一次性可能会收到多个已读回执，所以这里采用了数组的回调形式
+            for (V2TIMMessageReceipt v2TIMMessageReceipt : receiptList) {
+                // 消息接收者 receiver
+                String userID = v2TIMMessageReceipt.getUserID();
+                // 已读回执时间，聊天窗口中时间戳小于或等于 timestamp 的消息都可以被认为已读
+                long timestamp = v2TIMMessageReceipt.getTimestamp();
+                if (maxTimestamp < timestamp)
+                    maxTimestamp = timestamp;
+            }
+            for (int i = 0; i < mItems.size(); i++) {
+                BaseMsgElem elem = (BaseMsgElem) mItems.get(i);
+                if (elem.getTimMessage().getTimestamp() <= maxTimestamp) {
+                    elem.setLocalRead(true);
+                }
+            }
+            mAdapter.notifyDataSetChanged();
         }
 
         @Override
         public void onRecvMessageRevoked(String msgID) {
             super.onRecvMessageRevoked(msgID);
+            /*感知别人的消息被撤回的回调*/
+            // msgList 为当前聊天界面的消息列表
+//            for (V2TIMMessage msg : msgList) {
+//                if (msg.getMsgID().equals(msgID)) {
+//                    // msg 即为被撤回的消息，您需要修改 UI 上相应的消息气泡的状态
+//                }
+//            }
         }
     };
 

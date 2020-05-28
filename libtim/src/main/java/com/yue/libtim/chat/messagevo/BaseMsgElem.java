@@ -32,6 +32,9 @@ public class BaseMsgElem<T, E extends V2TIMElem> {
 
     private E timElem;//消息中的某一个元素，存在一个消息中多个元素的问题,但是正经人几乎不会这么干
 
+
+    /*本地对消息的已读判断*/
+    private boolean isLocalRead = false;
     /**
      * 额外数据
      * idea:可以在 {@link #parseTIMMessage}方法里解析消息后放置可以快速获取的数据，
@@ -78,5 +81,13 @@ public class BaseMsgElem<T, E extends V2TIMElem> {
      * 解析消息的方法 可以不实现方法体，空着
      */
     public void parseTIMMessage(V2TIMMessage timMessage) {
+    }
+
+    public boolean isLocalRead() {
+        return isLocalRead;
+    }
+
+    public void setLocalRead(boolean localRead) {
+        isLocalRead = localRead;
     }
 }
