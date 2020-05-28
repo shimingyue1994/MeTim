@@ -72,46 +72,7 @@ public class ImageElemHolder extends MessageContentHolder {
         /*这儿还得处理一下 先这样*/
         if (elemVO.getTimMessage().isSelf()) {
             if (!TextUtils.isEmpty(elemVO.getTimElem().getPath())) {
-                Glide.with(ivImage.getContext())
-                        .asBitmap()
-                        .load(elemVO.getTimElem().getPath())
-                        .into(new CustomTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                int width = resource.getWidth();
-                                int height = resource.getHeight();
-                                int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 150);
-                                int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 330);
-
-                                llMask.setVisibility(View.VISIBLE);
-                                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
-                                FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                if (width > maxWidth) {
-                                    paramsMask.width = maxWidth;
-                                    params.width = maxWidth;
-                                } else {
-                                    paramsMask.width = width;
-                                    params.width = width;
-                                }
-                                if (height > maxHeight) {
-                                    paramsMask.height = maxHeight;
-                                    params.height = maxHeight;
-                                } else {
-                                    paramsMask.height = height;
-                                    params.height = height;
-                                }
-                                llMask.setLayoutParams(paramsMask);
-                                ivImage.setLayoutParams(params);
-
-                                ivImage.setImageBitmap(resource);
-                            }
-
-                            @Override
-                            public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                            }
-                        });
-
+                showImage(elemVO.getTimElem().getPath());
                 if (elemVO.getTimMessage().getStatus() == V2TIMMessage.V2TIM_MSG_STATUS_SENDING) {
                     llMask.setVisibility(View.VISIBLE);
                     mProgressSending.setProgress(elemVO.getSendProgress());
@@ -221,14 +182,60 @@ public class ImageElemHolder extends MessageContentHolder {
             } else {
                 // 图片已存在
                 llMask.setVisibility(View.GONE);
-                RequestOptions options = new RequestOptions();
-                options.skipMemoryCache(true);
-                options.diskCacheStrategy(DiskCacheStrategy.NONE);
-                Glide.with(ivImage.getContext())
-                        .load(imagePath)
-                        .into(ivImage);
+//                RequestOptions options = new RequestOptions();
+//                options.skipMemoryCache(true);
+//                options.diskCacheStrategy(DiskCacheStrategy.NONE);
+//                Glide.with(ivImage.getContext())
+//                        .load(imagePath)
+//                        .into(ivImage);
+                showImage(imagePath);
+
             }
         }
+    }
+
+
+    private void showImage(String path) {
+        Glide.with(ivImage.getContext())
+                .asBitmap()
+                .load(path)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        int width = resource.getWidth();
+                        int height = resource.getHeight();
+                        int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 150);
+                        int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 330);
+
+                        llMask.setVisibility(View.VISIBLE);
+                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
+                        FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        if (width > maxWidth) {
+                            paramsMask.width = maxWidth;
+                            params.width = maxWidth;
+                        } else {
+                            paramsMask.width = width;
+                            params.width = width;
+                        }
+                        if (height > maxHeight) {
+                            paramsMask.height = maxHeight;
+                            params.height = maxHeight;
+                        } else {
+                            paramsMask.height = height;
+                            params.height = height;
+                        }
+                        llMask.setLayoutParams(paramsMask);
+                        ivImage.setLayoutParams(params);
+
+                        ivImage.setImageBitmap(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+
     }
 
     @Override
