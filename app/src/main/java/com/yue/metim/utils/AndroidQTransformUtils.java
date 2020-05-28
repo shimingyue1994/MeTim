@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.tools.PictureFileUtils;
@@ -28,7 +29,7 @@ import okio.Okio;
 /**
  * @author：luck
  * @date：2019-11-08 19:25
- * @describe：Android Q相关处理类
+ * @describe：Android Q(10)相关处理类
  */
 public class AndroidQTransformUtils {
 
@@ -51,11 +52,24 @@ public class AndroidQTransformUtils {
             if (outFile.exists()) {
                 return newPath;
             }
-            inBuffer = Okio.buffer(Okio.source(Objects.requireNonNull(ctx.getContentResolver().openInputStream(uri))));
+            long startTime = System.currentTimeMillis();
+            InputStream inputStream = ctx.getContentResolver().openInputStream(uri);
+            long endTime = System.currentTimeMillis();
+            long useTime = endTime - startTime;
+            Log.i("shimyTime","读取耗时"+useTime);
+
+            long writeStartTime = System.currentTimeMillis();
+            inBuffer = Okio.buffer(Okio.source(Objects.requireNonNull(inputStream)));
             boolean copyFileSuccess = PictureFileUtils.bufferCopy(inBuffer, outFile);
             if (copyFileSuccess) {
                 return newPath;
             }
+            long writeEndTime = System.currentTimeMillis();
+            long writeUseTime = writeEndTime - writeStartTime;
+            Log.i("shimyTime","写入耗时"+writeUseTime);
+            long allTime = useTime + writeUseTime;
+            Log.i("shimyTime","总耗时"+allTime);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -78,14 +92,24 @@ public class AndroidQTransformUtils {
             if (outFile.exists()) {
                 return newPath;
             }
+            long startTime = System.currentTimeMillis();
             InputStream inputStream = ctx.getContentResolver().openInputStream(uri);
+            long endTime = System.currentTimeMillis();
+            long useTime = endTime - startTime;
+            Log.i("shimyTime","读取耗时"+useTime);
+
+            long writeStartTime = System.currentTimeMillis();
             FileOutputStream fos = new FileOutputStream(outFile);
             int len = -1;
             byte[] buf = new byte[1024];
             while ((len = (inputStream.read(buf))) != -1) {
                 fos.write(buf);
             }
-
+            long writeEndTime = System.currentTimeMillis();
+            long writeUseTime = writeEndTime - writeStartTime;
+            Log.i("shimyTime","写入耗时"+writeUseTime);
+            long allTime = useTime + writeUseTime;
+            Log.i("shimyTime","总耗时"+allTime);
             inputStream.close();
             fos.close();
             return newPath;
@@ -101,20 +125,28 @@ public class AndroidQTransformUtils {
         ContentResolver resolver = ctx.getContentResolver();
         Uri uri = Uri.parse(url);
         try {
+            long startTime = System.currentTimeMillis();
             ParcelFileDescriptor descriptor = resolver.openFileDescriptor(uri, "r");
+            long endTime = System.currentTimeMillis();
+            long useTime = endTime - startTime;
+            Log.i("shimyTime","读取耗时："+useTime );
             FileDescriptor fileDescriptor = descriptor.getFileDescriptor();
             FileInputStream inputStream = new FileInputStream(fileDescriptor);
             String newPath = Constants.SANDBOX_COPY + File.separator + ("MM_" + UUID.randomUUID()).replaceAll("-", "");
             File outFile = new File(newPath);
 
-
+            long writeStartTime = System.currentTimeMillis();
             FileOutputStream fos = new FileOutputStream(outFile);
             int len = -1;
             byte[] buf = new byte[1024];
             while ((len = (inputStream.read(buf))) != -1) {
                 fos.write(buf);
             }
-
+            long writeEndTime = System.currentTimeMillis();
+            long writeUseTime = writeEndTime - writeStartTime;
+            Log.i("shimyTime","写入耗时"+writeUseTime);
+            long allTime = useTime + writeUseTime;
+            Log.i("shimyTime","总耗时"+allTime);
             inputStream.close();
             fos.close();
             return newPath;
