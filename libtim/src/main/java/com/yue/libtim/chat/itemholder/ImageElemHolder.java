@@ -16,14 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.CustomViewTarget;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.ViewTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.scwang.smart.refresh.layout.util.DesignUtil;
 import com.tencent.imsdk.TIMImageType;
 import com.tencent.imsdk.v2.V2TIMDownloadCallback;
 import com.tencent.imsdk.v2.V2TIMElem;
@@ -185,9 +179,6 @@ public class ImageElemHolder extends MessageContentHolder {
 //                RequestOptions options = new RequestOptions();
 //                options.skipMemoryCache(true);
 //                options.diskCacheStrategy(DiskCacheStrategy.NONE);
-//                Glide.with(ivImage.getContext())
-//                        .load(imagePath)
-//                        .into(ivImage);
                 showImage(imagePath);
 
             }
