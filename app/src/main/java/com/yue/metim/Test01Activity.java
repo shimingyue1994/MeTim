@@ -122,22 +122,18 @@ public class Test01Activity extends AppCompatActivity {
                     10, lastMessage, new V2TIMSendCallback<List<V2TIMMessage>>() {
                         @Override
                         public void onProgress(int i) {
-                            mBinding.progress.setVisibility(View.VISIBLE);
-                            mBinding.tvStatus.setText("消息加载中...");
+//                            mBinding.progress.setVisibility(View.VISIBLE);
+//                            mBinding.tvStatus.setText("消息加载中...");
                             mBinding.refresh.finishRefresh();
                         }
 
                         @Override
                         public void onError(int i, String s) {
-                            mBinding.progress.setVisibility(View.GONE);
-                            mBinding.tvStatus.setText("加载错误" + i + s);
                             mBinding.refresh.finishRefresh();
                         }
 
                         @Override
                         public void onSuccess(List<V2TIMMessage> v2TIMMessages) {
-                            mBinding.progress.setVisibility(View.GONE);
-                            mBinding.tvStatus.setText("加载成功" + v2TIMMessages.size());
                             Collections.reverse(v2TIMMessages);
                             if (v2TIMMessages.size() > 0)
                                 lastMessage = v2TIMMessages.get(0);
@@ -169,22 +165,16 @@ public class Test01Activity extends AppCompatActivity {
                     new V2TIMSendCallback<V2TIMMessage>() {
                         @Override
                         public void onProgress(int i) {
-                            mBinding.tvStatus.setText("发送中" + i);
-                            mBinding.progress.setVisibility(View.VISIBLE);
                             mAdapter.notifyDataSetChanged();
                         }
 
                         @Override
                         public void onError(int i, String s) {
-                            mBinding.tvStatus.setText("发送失败" + i + s);
-                            mBinding.progress.setVisibility(View.GONE);
                             mAdapter.notifyDataSetChanged();
                         }
 
                         @Override
                         public void onSuccess(V2TIMMessage v2TIMMessage) {
-                            mBinding.tvStatus.setText("发送成功");
-                            mBinding.progress.setVisibility(View.GONE);
                             mAdapter.notifyDataSetChanged();
                         }
                     });
@@ -211,31 +201,30 @@ public class Test01Activity extends AppCompatActivity {
         mItems.add(imageElemVO);
         mAdapter.notifyDataSetChanged();
         int position = mItems.size() - 1;
-        mBinding.recycler.scrollToPosition(mItems.size() - 1);
+        mBinding.recycler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mBinding.recycler.scrollToPosition(mItems.size() - 1);
+            }
+        },1300);
+
         V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
                 V2TIM_PRIORITY_DEFAULT, true, null,
                 new V2TIMSendCallback<V2TIMMessage>() {
                     @Override
                     public void onProgress(int i) {
-                        mBinding.tvStatus.setText("发送中" + i);
-                        mBinding.progress.setVisibility(View.VISIBLE);
                         imageElemVO.setSendProgress(i);
                         mAdapter.notifyItemChanged(position);
                     }
 
                     @Override
                     public void onError(int i, String s) {
-                        mBinding.tvStatus.setText("发送失败" + i + s);
-                        mBinding.progress.setVisibility(View.GONE);
                         mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onSuccess(V2TIMMessage v2TIMMessage) {
-                        mBinding.tvStatus.setText("发送成功");
-                        mBinding.progress.setVisibility(View.GONE);
                         mAdapter.notifyDataSetChanged();
-                        mBinding.recycler.scrollToPosition(mItems.size() - 1);
                     }
                 });
     }
@@ -498,22 +487,16 @@ public class Test01Activity extends AppCompatActivity {
                 new V2TIMSendCallback<V2TIMMessage>() {
                     @Override
                     public void onProgress(int i) {
-                        mBinding.tvStatus.setText("发送中" + i);
-                        mBinding.progress.setVisibility(View.VISIBLE);
                         mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onError(int i, String s) {
-                        mBinding.tvStatus.setText("发送失败" + i + s);
-                        mBinding.progress.setVisibility(View.GONE);
                         mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onSuccess(V2TIMMessage v2TIMMessage) {
-                        mBinding.tvStatus.setText("发送成功");
-                        mBinding.progress.setVisibility(View.GONE);
                         mAdapter.notifyDataSetChanged();
                     }
                 });

@@ -1,5 +1,7 @@
 package com.yue.libtim.chat.itemholder;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +13,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.CustomViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.ViewTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.scwang.smart.refresh.layout.util.DesignUtil;
 import com.tencent.imsdk.TIMImageType;
 import com.tencent.imsdk.v2.V2TIMDownloadCallback;
@@ -50,7 +58,7 @@ public class ImageElemHolder extends MessageContentHolder {
         tvProgress = itemView.findViewById(R.id.tv_progress);
         llMask = itemView.findViewById(R.id.ll_mask);
         btnReDown = itemView.findViewById(R.id.btn_redown);
-        ivImage.setImageResource(R.drawable.ic_default_image);
+        mFlMsgContent.setBackground(null);
     }
 
 
@@ -65,8 +73,45 @@ public class ImageElemHolder extends MessageContentHolder {
         if (elemVO.getTimMessage().isSelf()) {
             if (!TextUtils.isEmpty(elemVO.getTimElem().getPath())) {
                 Glide.with(ivImage.getContext())
+                        .asBitmap()
                         .load(elemVO.getTimElem().getPath())
-                        .into(ivImage);
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                int width = resource.getWidth();
+                                int height = resource.getHeight();
+                                int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 150);
+                                int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 330);
+
+                                llMask.setVisibility(View.VISIBLE);
+                                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
+                                FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                if (width > maxWidth) {
+                                    paramsMask.width = maxWidth;
+                                    params.width = maxWidth;
+                                } else {
+                                    paramsMask.width = width;
+                                    params.width = width;
+                                }
+                                if (height > maxHeight) {
+                                    paramsMask.height = maxHeight;
+                                    params.height = maxHeight;
+                                } else {
+                                    paramsMask.height = height;
+                                    params.height = height;
+                                }
+                                llMask.setLayoutParams(paramsMask);
+                                ivImage.setLayoutParams(params);
+
+                                ivImage.setImageBitmap(resource);
+                            }
+
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                            }
+                        });
+
                 if (elemVO.getTimMessage().getStatus() == V2TIMMessage.V2TIM_MSG_STATUS_SENDING) {
                     llMask.setVisibility(View.VISIBLE);
                     mProgressSending.setProgress(elemVO.getSendProgress());
@@ -114,25 +159,28 @@ public class ImageElemHolder extends MessageContentHolder {
             /*根据返回的宽度改变视图，*/
             int width = v2TIMImage.getWidth(); // 图片宽度
             int height = v2TIMImage.getHeight(); // 图片高度
+            int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 150);
+            int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 330);
+
             llMask.setVisibility(View.VISIBLE);
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
-            params.width = width;
-            params.height = height;
-            ivImage.setLayoutParams(params);
-
-
-            int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 250);
-            int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 400);
             FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            if (width > maxWidth)
-                paramsMask.width = maxWidth;
-            else
-                paramsMask.width = width;
 
-            if (height > maxHeight)
+            if (width > maxWidth) {
+                paramsMask.width = maxWidth;
+                params.width = maxWidth;
+            } else {
+                paramsMask.width = width;
+                params.width = width;
+            }
+            if (height > maxHeight) {
                 paramsMask.height = maxHeight;
-            else
+                params.height = maxHeight;
+            } else {
                 paramsMask.height = height;
+                params.height = height;
+            }
+            ivImage.setLayoutParams(params);
             llMask.setLayoutParams(paramsMask);
 
             File dir = new File(TUIKitConstants.IMAGE_MESSAGE_DIR);
