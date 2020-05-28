@@ -1,6 +1,7 @@
 package com.yue.metim;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,8 +43,10 @@ import com.tencent.imsdk.v2.V2TIMTextElem;
 import com.tencent.imsdk.v2.V2TIMUserInfo;
 import com.tencent.imsdk.v2.V2TIMVideoElem;
 import com.yue.libtim.chat.interfaces.IMessageItemClick;
+import com.yue.libtim.chat.itembinder.RevokeElemBinder;
 import com.yue.libtim.chat.itembinder.TextElemBinder;
 import com.yue.libtim.chat.messagevo.BaseMsgElem;
+import com.yue.libtim.chat.messagevo.RevokeElemVO;
 import com.yue.libtim.chat.messagevo.TextElemVO;
 import com.yue.metim.constants.User;
 import com.yue.metim.databinding.ActivityTest01Binding;
@@ -80,6 +83,12 @@ public class Test01Activity extends AppCompatActivity {
         TextElemBinder textElemBinder = new TextElemBinder();
         textElemBinder.setItemClick(messageItemClick);
         mAdapter.register(TextElemVO.class, textElemBinder);
+        RevokeElemBinder revokeElemBinder = new RevokeElemBinder();
+        revokeElemBinder.setOnRevokeListener((position, item) -> {
+
+            handleDelete(item);
+        });
+        mAdapter.register(RevokeElemVO.class, revokeElemBinder);
         mBinding.recycler.setLayoutManager(new LinearLayoutManager(this));
         mBinding.recycler.suppressLayout(false);
         mBinding.recycler.setItemViewCacheSize(0);
@@ -204,23 +213,8 @@ public class Test01Activity extends AppCompatActivity {
      * @param isLoadHis
      */
     private void handleMsg(V2TIMMessage msg, boolean isLoadHis) {
-        if (msg.getStatus() == V2TIM_MSG_STATUS_HAS_DELETED) {
-            /*被删除或失败的消息不展示*/
-            return;
-        }
-
-        if (msg.getStatus() == V2TIM_MSG_STATUS_LOCAL_REVOKED) {
-            /*被撤回的消息处理*/
-            V2TIMElem elem = msg.getTextElem();
-            if (elem != null) {
-                handleElem(msg, elem, isLoadHis);
-            }
-            if (msg.getElemType() != V2TIM_ELEM_TYPE_NONE && elem != null) {
-                /*判断是否还有下一个元素 因为存在一个消息多个元素的情况，但这种情况极少出现，除了特别奇葩的设定*/
-                while (elem.getNextElem() != null) {
-                    handleElem(msg, elem.getNextElem(), isLoadHis);
-                }
-            }
+        if (msg.getStatus() == V2TIM_MSG_STATUS_HAS_DELETED || msg.getStatus() == V2TIM_ELEM_TYPE_NONE) {
+            /*none或被删除的消息不展示*/
             return;
         }
 
@@ -280,6 +274,13 @@ public class Test01Activity extends AppCompatActivity {
      * @param isLoadHis 是否是加载消息
      */
     private void handleElem(V2TIMMessage msg, V2TIMElem elem, boolean isLoadHis) {
+
+        if (msg.getStatus() == V2TIM_MSG_STATUS_LOCAL_REVOKED) {
+            RevokeElemVO revokeElemVO = new RevokeElemVO(msg, elem);
+            mItems.add(revokeElemVO);
+            return;
+        }
+
         if (elem instanceof V2TIMTextElem) {
             V2TIMTextElem textElem = (V2TIMTextElem) elem;
             TextElemVO textElemVO = new TextElemVO(msg, textElem);
@@ -333,18 +334,20 @@ public class Test01Activity extends AppCompatActivity {
         public void onLongClickBubble(View view, int position, BaseMsgElem timMessage) {
             List<MsgPopAction> list = new ArrayList<>();
             if (timMessage.getTimMessage().getStatus() == V2TIM_MSG_STATUS_SEND_FAIL) {
-                list.add(new MsgPopAction("重发", () -> {
-                    Toast.makeText(Test01Activity.this, "重发", Toast.LENGTH_SHORT).show();
+                list.add(new MsgPopAction("重发", (popupWindow) -> {
+                    popupWindow.dismiss();
                     handleMsgRepeat(position, timMessage);
                 }));
-                list.add(new MsgPopAction("删除", () -> {
-                    mItems.remove(position);
-                    mAdapter.notifyDataSetChanged();
-                }));
             }
-            if (timMessage.getTimMessage().isSelf()) {
-                list.add(new MsgPopAction("撤回", () -> {
 
+            if (timMessage.getTimMessage().isSelf()) {
+                list.add(new MsgPopAction("删除", (popupWindow) -> {
+                    popupWindow.dismiss();
+                    handleDelete(timMessage);
+                }));
+                list.add(new MsgPopAction("撤回", (popupWindow) -> {
+                    popupWindow.dismiss();
+                    handleMsgRevoke(position, timMessage);
                 }));
             }
             IMPopupView imPopupView = new IMPopupView();
@@ -354,20 +357,32 @@ public class Test01Activity extends AppCompatActivity {
 
 
     private void handleMsgRevoke(int position, BaseMsgElem msgElem) {
+        showProgress();
         V2TIMManager.getMessageManager().revokeMessage(msgElem.getTimMessage(), new V2TIMCallback() {
             @Override
             public void onError(int code, String desc) {
-                // 撤回消息失败
-                Toast.makeText(Test01Activity.this, "撤回失败", Toast.LENGTH_SHORT).show();
+                hideProgress();
+                if (code == 20016) {
+                    showTip("超过两分钟的消息不可撤回");
+                } else if (code == 20022) {
+                    showTip("撤回的消息不存在");
+                } else if (code == 20023) {
+                    showTip("消息已被撤回");
+                } else {
+                    // 撤回消息失败
+                    showTip("撤回失败：code:" + code + " " + desc);
+                }
             }
 
             @Override
             public void onSuccess() {
+                hideProgress();
                 // 撤回消息成功
                 for (int i = 0; i < mItems.size(); i++) {
                     BaseMsgElem msgElem1 = (BaseMsgElem) mItems.get(i);
                     if (msgElem1.getTimMessage().getMsgID().equals(msgElem.getTimMessage().getMsgID())) {
-//                        mItems.add()
+                        RevokeElemVO revokeElemVO = new RevokeElemVO(msgElem1.getTimMessage(), msgElem1.getTimElem());
+                        mItems.add(i, revokeElemVO);
                         mItems.remove(i);
                     }
                 }
@@ -409,5 +424,65 @@ public class Test01Activity extends AppCompatActivity {
                     }
                 });
 
+    }
+
+
+    /**
+     * 删除消息 目前只支持本地删除，不支持云端删除
+     *
+     * @param elem
+     */
+    private void handleDelete(BaseMsgElem elem) {
+        V2TIMManager.getMessageManager().deleteMessageFromLocalStorage(elem.getTimMessage(), new V2TIMCallback() {
+            @Override
+            public void onError(int code, String desc) {
+                // 删除消息失败
+                showTip("删除消息失败 code " + code + desc);
+            }
+
+            @Override
+            public void onSuccess() {
+                // 删除消息成功
+                for (int i = 0; i < mItems.size(); i++) {
+                    BaseMsgElem msgElem1 = (BaseMsgElem) mItems.get(i);
+                    if (msgElem1.getTimMessage().getMsgID().equals(elem.getTimMessage().getMsgID())) {
+                        mItems.remove(i);
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+
+    private AlertDialog mDialogTip;
+
+
+    private void showTip(String text) {
+        if (mDialogTip == null && !this.isFinishing()) {
+            mDialogTip = new AlertDialog.Builder(this).create();
+        }
+        mDialogTip.setMessage(text);
+        mDialogTip.show();
+    }
+
+    private AlertDialog mDialogProgress;
+
+    private void showProgress() {
+        if (mDialogProgress == null && !this.isFinishing()) {
+            mDialogProgress = new AlertDialog.Builder(this)
+                    .setView(R.layout.dialog_progress)
+                    .create();
+
+        }
+        if (!mDialogProgress.isShowing())
+            mDialogProgress.show();
+    }
+
+
+    private void hideProgress() {
+        if (mDialogProgress != null && !this.isFinishing() && mDialogProgress.isShowing()) {
+            mDialogProgress.dismiss();
+        }
     }
 }

@@ -55,7 +55,7 @@ public class IMPopupView {
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler);
 
-        ActionAdapter listAdapter = new ActionAdapter(list);
+        ActionAdapter listAdapter = new ActionAdapter(list,popupWindow);
 
         recyclerView.setAdapter(listAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -78,9 +78,11 @@ public class IMPopupView {
     class ActionAdapter extends RecyclerView.Adapter<ActionAdapter.MyHolder> {
 
         private List<MsgPopAction> mList = new ArrayList<>();
+        private PopupWindow popupWindow;
 
-        public ActionAdapter(List<MsgPopAction> list) {
+        public ActionAdapter(List<MsgPopAction> list,PopupWindow popupWindow) {
             this.mList = list;
+            this.popupWindow = popupWindow;
         }
 
         @NonNull
@@ -95,7 +97,7 @@ public class IMPopupView {
             MsgPopAction action = mList.get(position);
             holder.tvAction.setText(action.getActionName());
             holder.tvAction.setOnClickListener(v -> {
-                action.getOnMsgActionListener().onActionClick();
+                action.getOnMsgActionListener().onActionClick(popupWindow);
             });
         }
 

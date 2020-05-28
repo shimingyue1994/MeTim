@@ -1,6 +1,7 @@
 package com.yue.metim.weight.msgpop;
 
 import android.view.View;
+import android.widget.PopupWindow;
 
 import com.yue.libtim.chat.messagevo.BaseMsgElem;
 
@@ -39,6 +40,6 @@ public class MsgPopAction {
     }
 
     public interface OnMsgActionListener {
-        void onActionClick();
+        void onActionClick(PopupWindow popupWindow);
     }
 }
