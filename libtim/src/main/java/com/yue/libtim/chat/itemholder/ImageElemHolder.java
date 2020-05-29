@@ -199,9 +199,7 @@ public class ImageElemHolder extends MessageContentHolder {
                         progressBar.setVisibility(View.GONE);
                         tvProgress.setVisibility(View.GONE);
                         btnReDown.setVisibility(View.GONE);
-                        Glide.with(ivImage.getContext())
-                                .load(imagePath)
-                                .into(ivImage);
+                        showImage(imagePath);
 
                     }
                 });
@@ -226,25 +224,48 @@ public class ImageElemHolder extends MessageContentHolder {
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         int width = resource.getWidth();
                         int height = resource.getHeight();
-                        int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 150);
-                        int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 330);
+                        int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 100);
+                        int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 260);
 
                         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
                         FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        if (width > maxWidth) {
-                            paramsMask.width = maxWidth;
-                            params.width = maxWidth;
+
+                        //计算缩放比例
+                        int scaleX = width / maxWidth;
+                        int scaleY = height / maxHeight;
+                        int scale = 1;
+                        if (scaleX > scaleY && scaleX > 1) {
+                            scale = scaleX;
+                        }
+                        if (scaleY > scaleX && scaleY > 1) {
+                            scale = scaleY;
+                        }
+
+                        if (width > maxWidth || height > maxHeight) {
+                            paramsMask.width = width / scale;
+                            params.width = width / scale;
+                            paramsMask.height = height / scale;
+                            params.height = height / scale;
                         } else {
                             paramsMask.width = width;
                             params.width = width;
-                        }
-                        if (height > maxHeight) {
-                            paramsMask.height = maxHeight;
-                            params.height = maxHeight;
-                        } else {
                             paramsMask.height = height;
                             params.height = height;
                         }
+//                        if (width > maxWidth) {
+//                            paramsMask.width = maxWidth;
+//                            params.width = maxWidth;
+//                        } else {
+//                            paramsMask.width = width;
+//                            params.width = width;
+//                        }
+//                        if (height > maxHeight) {
+//                            paramsMask.height = maxHeight;
+//                            params.height = maxHeight;
+//                        } else {
+//                            paramsMask.height = height;
+//                            params.height = height;
+//                        }
                         llMask.setLayoutParams(paramsMask);
                         ivImage.setLayoutParams(params);
 
