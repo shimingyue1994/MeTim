@@ -235,10 +235,10 @@ public class ImageElemHolder extends MessageContentHolder {
                         int scaleX = width / maxWidth;
                         int scaleY = height / maxHeight;
                         int scale = 1;
-                        if (scaleX > scaleY && scaleX > 1) {
+                        if (scaleX >= scaleY && scaleX > 1) {
                             scale = scaleX;
                         }
-                        if (scaleY > scaleX && scaleY > 1) {
+                        if (scaleY >= scaleX && scaleY > 1) {
                             scale = scaleY;
                         }
 

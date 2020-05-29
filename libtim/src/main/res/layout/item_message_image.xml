@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:maxWidth="150dp"
-        android:src="@drawable/ic_default_image"
         android:maxHeight="330dp"
         android:scaleType="centerCrop" />
 
