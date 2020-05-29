@@ -204,9 +204,10 @@ public class Test01Activity extends AppCompatActivity {
         mBinding.recycler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                mAdapter.notifyItemChanged(position, mItems.size() - 1);
                 mBinding.recycler.scrollToPosition(mItems.size() - 1);
             }
-        },500);
+        }, 500);
 
 
         V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
