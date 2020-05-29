@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -190,6 +191,16 @@ public class Test01Activity extends AppCompatActivity {
                     .imageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
                     .forResult(PictureConfig.CHOOSE_REQUEST);
         });
+        mBinding.btnSendVideo.setOnClickListener(v -> {
+            PictureSelector.create(this)
+                    .openGallery(PictureMimeType.ofVideo())
+                    .maxSelectNum(1)// 最大图片选择数量 int
+                    .isCamera(true)// 是否显示拍照按钮 true or false
+//                    .cutOutQuality(90)
+                    .synOrAsy(true)
+                    .imageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                    .forResult(PictureConfig.CHOOSE_REQUEST + 1);
+        });
     }
 
 
@@ -231,6 +242,16 @@ public class Test01Activity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * 发送视频消息
+     */
+    public void sendVideo(LocalMedia localMedia) {
+//        localMedia.getMimeType();
+//        V2TIMMessage timMessage = V2TIMManager.getMessageManager().createVideoMessage(path);
+//        V2TIMImageElem imageElem = timMessage.getImageElem();
+//        ImageElemVO imageElemVO = new ImageElemVO(timMessage, imageElem);
+//        mItems.add(imageElemVO);
+    }
 
     /**
      * 接收别人的消息
@@ -558,6 +579,11 @@ public class Test01Activity extends AppCompatActivity {
                 case PictureConfig.CHOOSE_REQUEST: {
                     List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
                     sendImage(selectList.get(0).getCompressPath());
+                }
+                break;
+                case PictureConfig.CHOOSE_REQUEST + 1: {//视频
+                    List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
+                    sendVideo(selectList.get(0));
                 }
                 break;
             }
