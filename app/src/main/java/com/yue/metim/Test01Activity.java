@@ -252,35 +252,39 @@ public class Test01Activity extends AppCompatActivity {
         @Override
         public void onRecvC2CReadReceipt(List<V2TIMMessageReceipt> receiptList) {
             super.onRecvC2CReadReceipt(receiptList);
-            long maxTimestamp = 0;//最大时间戳
-            // 由于接收方一次性可能会收到多个已读回执，所以这里采用了数组的回调形式
-            for (V2TIMMessageReceipt v2TIMMessageReceipt : receiptList) {
-                // 消息接收者 receiver
-                String userID = v2TIMMessageReceipt.getUserID();
-                // 已读回执时间，聊天窗口中时间戳小于或等于 timestamp 的消息都可以被认为已读
-                long timestamp = v2TIMMessageReceipt.getTimestamp();
-                if (maxTimestamp <= timestamp)
-                    maxTimestamp = timestamp;
-            }
-            /*是否需要更新adapter  当自己的消息都已经是已读时，不需要更新*/
-            boolean isNotify = false;
-            for (int i = 0; i < mItems.size(); i++) {
-                BaseMsgElem elem = (BaseMsgElem) mItems.get(i);
-                if (!elem.getTimMessage().isSelf()) {
-                    continue;
+            synchronized (receiptList) {
+                long maxTimestamp = 0;//最大时间戳
+                // 由于接收方一次性可能会收到多个已读回执，所以这里采用了数组的回调形式
+                for (V2TIMMessageReceipt v2TIMMessageReceipt : receiptList) {
+                    // 消息接收者 receiver
+                    String userID = v2TIMMessageReceipt.getUserID();
+                    // 已读回执时间，聊天窗口中时间戳小于或等于 timestamp 的消息都可以被认为已读
+                    long timestamp = v2TIMMessageReceipt.getTimestamp();
+                    if (maxTimestamp <= timestamp)
+                        maxTimestamp = timestamp;
                 }
-                if (elem.isLocalRead()) {
-                    continue;
+                /*是否需要更新adapter  当自己的消息都已经是已读时，不需要更新*/
+                boolean isNotify = false;
+                for (int i = 0; i < mItems.size(); i++) {
+                    BaseMsgElem elem = (BaseMsgElem) mItems.get(i);
+                    if (!elem.getTimMessage().isSelf()) {
+                        continue;
+                    }
+                    if (elem.isLocalRead()) {
+                        continue;
+                    }
+                    Log.i("shimyHz", "已读回执设置1");
+                    long timestamp = elem.getTimMessage().getTimestamp();
+                    if (timestamp <= maxTimestamp) {
+                        isNotify = true;
+                        elem.setLocalRead(true);
+                        Log.i("shimyHz", "已读回执设置2");
+                    }
                 }
-                long timestamp = elem.getTimMessage().getTimestamp();
-                if (timestamp <= maxTimestamp) {
-                    isNotify = true;
-                    elem.setLocalRead(true);
+                Log.i("shimyHz", "已读回执");
+                if (isNotify) {
+                    mAdapter.notifyDataSetChanged();
                 }
-            }
-            Log.i("shimy", "已读回执");
-            if (isNotify) {
-                mAdapter.notifyDataSetChanged();
             }
         }
 

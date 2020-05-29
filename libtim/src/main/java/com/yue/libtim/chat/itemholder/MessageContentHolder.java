@@ -169,13 +169,13 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
                     @Override
                     public void onError(int code, String desc) {
                         // 设置消息已读失败
-                        Log.i("shimy", "已读标记失败：" + code + desc);
+                        Log.i("shimyHz", "已读标记失败：" + code + desc);
                     }
 
                     @Override
                     public void onSuccess() {
                         // 设置消息已读成功
-                        Log.i("shimy", "已读标记成功");
+                        Log.i("shimyHz", "已读标记成功");
                         message.setLocalRead(true);
                     }
                 });
