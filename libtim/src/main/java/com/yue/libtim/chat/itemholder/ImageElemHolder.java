@@ -54,14 +54,13 @@ public class ImageElemHolder extends MessageContentHolder {
         tvProgress = itemView.findViewById(R.id.tv_progress);
         llMask = itemView.findViewById(R.id.ll_mask);
         btnReDown = itemView.findViewById(R.id.btn_redown);
-
-        mFlMsgContent.setBackground(null);
     }
 
 
     public void showMessage(final ImageElemVO elemVO) {
+        mFlMsgContent.setBackground(null);
         /*重置view*/
-        ivImage.setImageResource(R.drawable.ic_default_image);
+//        ivImage.setImageResource(R.drawable.ic_default_image);
         llMask.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         tvProgress.setVisibility(View.GONE);
