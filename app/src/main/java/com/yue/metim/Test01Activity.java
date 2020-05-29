@@ -201,7 +201,13 @@ public class Test01Activity extends AppCompatActivity {
         mItems.add(imageElemVO);
         mAdapter.notifyDataSetChanged();
         int position = mItems.size() - 1;
-        mBinding.recycler.scrollToPosition(mItems.size() - 1);
+        mBinding.recycler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mBinding.recycler.scrollToPosition(mItems.size() - 1);
+            }
+        },150);
+
         V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
                 V2TIM_PRIORITY_DEFAULT, true, null,
                 new V2TIMSendCallback<V2TIMMessage>() {
@@ -213,12 +219,12 @@ public class Test01Activity extends AppCompatActivity {
 
                     @Override
                     public void onError(int i, String s) {
-                        mAdapter.notifyDataSetChanged();
+                        mAdapter.notifyItemChanged(position);
                     }
 
                     @Override
                     public void onSuccess(V2TIMMessage v2TIMMessage) {
-                        mAdapter.notifyDataSetChanged();
+                        mAdapter.notifyItemChanged(position);
                     }
                 });
     }
