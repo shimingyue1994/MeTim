@@ -58,7 +58,7 @@ public class ImageElemHolder extends MessageContentHolder {
 
 
     public void showMessage(final ImageElemVO elemVO) {
-        mFlMsgContent.setBackground(null);
+        mFlMsgContent.setBackgroundColor(ivImage.getResources().getColor(android.R.color.transparent));
         /*重置view*/
 //        ivImage.setImageResource(R.drawable.ic_default_image);
         llMask.setVisibility(View.GONE);
