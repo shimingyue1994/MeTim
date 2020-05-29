@@ -77,7 +77,6 @@ public class ImageElemHolder extends MessageContentHolder {
         /*这儿还得处理一下 先这样*/
         if (elemVO.getTimMessage().isSelf()) {
             if (!TextUtils.isEmpty(elemVO.getTimElem().getPath()) && new File(elemVO.getTimElem().getPath()).exists()) {
-                showImage(elemVO.getTimElem().getPath(), recyclerView);
                 if (elemVO.getTimMessage().getStatus() == V2TIMMessage.V2TIM_MSG_STATUS_SENDING) {
                     llMask.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
@@ -99,6 +98,7 @@ public class ImageElemHolder extends MessageContentHolder {
                     tvProgress.setVisibility(View.GONE);
                     btnReDown.setVisibility(View.GONE);
                 }
+                showImage(elemVO.getTimElem().getPath(), recyclerView);
             } else {
                 downImage(imageList, elemVO.getTimMessage().getSender(), recyclerView);
             }
