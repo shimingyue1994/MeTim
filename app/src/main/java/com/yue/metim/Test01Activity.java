@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -99,19 +100,18 @@ public class Test01Activity extends AppCompatActivity {
             handleDelete(item);
         });
         mAdapter.register(RevokeElemVO.class, revokeElemBinder);
-        mAdapter.register(ImageElemVO.class,new ImageElemBinder());
-        mBinding.recycler.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter.register(ImageElemVO.class, new ImageElemBinder());
+
         mBinding.recycler.suppressLayout(false);
         mBinding.recycler.setItemViewCacheSize(0);
         mBinding.recycler.setHasFixedSize(true);
         mBinding.recycler.setFocusableInTouchMode(false);
-        mBinding.recycler.addItemDecoration(new RecyclerView.ItemDecoration() {
-            @Override
-            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-                super.getItemOffsets(outRect, view, parent, state);
-                outRect.bottom = 20;
-            }
-        });
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        mBinding.recycler.setLayoutManager(linearLayoutManager);
+        ((DefaultItemAnimator) mBinding.recycler.getItemAnimator()).setSupportsChangeAnimations(false);
+
+
         mBinding.recycler.setAdapter(mAdapter);
         sends();
         mBinding.refresh.setEnableLoadMore(false);
@@ -201,13 +201,7 @@ public class Test01Activity extends AppCompatActivity {
         mItems.add(imageElemVO);
         mAdapter.notifyDataSetChanged();
         int position = mItems.size() - 1;
-        mBinding.recycler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mBinding.recycler.scrollToPosition(mItems.size() - 1);
-            }
-        },1300);
-
+        mBinding.recycler.scrollToPosition(mItems.size() - 1);
         V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
                 V2TIM_PRIORITY_DEFAULT, true, null,
                 new V2TIMSendCallback<V2TIMMessage>() {

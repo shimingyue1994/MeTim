@@ -47,17 +47,27 @@ public class ImageElemHolder extends MessageContentHolder {
     public Button btnReDown;
 
     public ImageElemHolder(@NonNull View itemView, RecyclerView.Adapter adapter) {
-        super(itemView,adapter);
+        super(itemView, adapter);
         ivImage = itemView.findViewById(R.id.iv_image);
+
         progressBar = itemView.findViewById(R.id.progress);
         tvProgress = itemView.findViewById(R.id.tv_progress);
         llMask = itemView.findViewById(R.id.ll_mask);
         btnReDown = itemView.findViewById(R.id.btn_redown);
+
         mFlMsgContent.setBackground(null);
     }
 
 
     public void showMessage(final ImageElemVO elemVO) {
+        /*重置view*/
+        ivImage.setImageResource(R.drawable.ic_default_image);
+        llMask.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+        tvProgress.setVisibility(View.GONE);
+        btnReDown.setVisibility(View.GONE);
+
+
         // 一个图片消息会包含三种格式大小的图片，分别为原图、大图、微缩图(SDK内部自动生成大图和微缩图)， 这三种图片通过getImageList获取
         // 大图：是将原图等比压缩，压缩后宽、高中较小的一个等于720像素。
         // 缩略图：是将原图等比压缩，压缩后宽、高中较小的一个等于198像素。
@@ -66,16 +76,28 @@ public class ImageElemHolder extends MessageContentHolder {
 
         /*这儿还得处理一下 先这样*/
         if (elemVO.getTimMessage().isSelf()) {
-            if (!TextUtils.isEmpty(elemVO.getTimElem().getPath())) {
+            if (!TextUtils.isEmpty(elemVO.getTimElem().getPath()) && new File(elemVO.getTimElem().getPath()).exists()) {
                 showImage(elemVO.getTimElem().getPath());
                 if (elemVO.getTimMessage().getStatus() == V2TIMMessage.V2TIM_MSG_STATUS_SENDING) {
                     llMask.setVisibility(View.VISIBLE);
-                    mProgressSending.setProgress(elemVO.getSendProgress());
+                    progressBar.setVisibility(View.VISIBLE);
+                    tvProgress.setVisibility(View.VISIBLE);
+                    btnReDown.setVisibility(View.GONE);
+
+                    progressBar.setProgress(elemVO.getSendProgress());
                     tvProgress.setText(elemVO.getSendProgress() + "%");
                 } else if (elemVO.getTimMessage().getStatus() == V2TIMMessage.V2TIM_MSG_STATUS_SEND_FAIL) {
-                    llMask.setVisibility(View.GONE);
+                    llMask.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    tvProgress.setVisibility(View.VISIBLE);
+                    btnReDown.setVisibility(View.GONE);
+
+                    tvProgress.setText("发送失败");
                 } else if (elemVO.getTimMessage().getStatus() == V2TIMMessage.V2TIM_MSG_STATUS_SEND_SUCC) {
                     llMask.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.GONE);
+                    tvProgress.setVisibility(View.GONE);
+                    btnReDown.setVisibility(View.GONE);
                 }
             } else {
                 downImage(imageList, elemVO.getTimMessage().getSender());
@@ -118,7 +140,6 @@ public class ImageElemHolder extends MessageContentHolder {
             int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 150);
             int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 330);
 
-            llMask.setVisibility(View.VISIBLE);
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
             FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
@@ -147,12 +168,15 @@ public class ImageElemHolder extends MessageContentHolder {
             final String imagePath = TUIKitConstants.IMAGE_MESSAGE_DIR + "thumb_" + userid + "_" + uuid;
             File imageFile = new File(imagePath);
             if (!imageFile.exists()) {
+                llMask.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                tvProgress.setVisibility(View.VISIBLE);
+                btnReDown.setVisibility(View.GONE);
                 v2TIMImage.downloadImage(imagePath, new V2TIMDownloadCallback() {
                     @Override
                     public void onProgress(V2TIMElem.V2ProgressInfo progressInfo) {
                         // 图片下载进度：已下载大小 v2ProgressInfo.getCurrentSize()；总文件大小 v2ProgressInfo.getTotalSize()
                         int progress = (int) ((progressInfo.getTotalSize() * 100) / progressInfo.getCurrentSize());
-                        tvProgress.setVisibility(View.VISIBLE);
                         tvProgress.setText(FileDownloadUtils.byteHandle(progressInfo.getCurrentSize()) + "/" + FileDownloadUtils.byteHandle(progressInfo.getTotalSize()));
                         progressBar.setProgress(progress);
 
@@ -161,31 +185,34 @@ public class ImageElemHolder extends MessageContentHolder {
                     @Override
                     public void onError(int code, String desc) {
                         // 图片下载失败
+                        llMask.setVisibility(View.VISIBLE);
                         progressBar.setVisibility(View.GONE);
+                        tvProgress.setVisibility(View.VISIBLE);
+                        btnReDown.setVisibility(View.GONE);
+
                         tvProgress.setText("下载失败");
-                        btnReDown.setVisibility(View.VISIBLE);
-                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onSuccess() {
                         // 图片下载完成
                         llMask.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
+                        tvProgress.setVisibility(View.GONE);
+                        btnReDown.setVisibility(View.GONE);
                         Glide.with(ivImage.getContext())
                                 .load(imagePath)
                                 .into(ivImage);
-                        mAdapter.notifyDataSetChanged();
+
                     }
                 });
             } else {
-                // 图片已存在
                 llMask.setVisibility(View.GONE);
-//                RequestOptions options = new RequestOptions();
-//                options.skipMemoryCache(true);
-//                options.diskCacheStrategy(DiskCacheStrategy.NONE);
+                progressBar.setVisibility(View.GONE);
+                tvProgress.setVisibility(View.GONE);
+                btnReDown.setVisibility(View.GONE);
+                // 图片已存在
                 showImage(imagePath);
-                mAdapter.notifyDataSetChanged();
-
             }
         }
     }
@@ -203,7 +230,6 @@ public class ImageElemHolder extends MessageContentHolder {
                         int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 150);
                         int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 330);
 
-                        llMask.setVisibility(View.VISIBLE);
                         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
                         FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                         if (width > maxWidth) {
