@@ -100,7 +100,7 @@ public class Test01Activity extends AppCompatActivity {
             handleDelete(item);
         });
         mAdapter.register(RevokeElemVO.class, revokeElemBinder);
-        mAdapter.register(ImageElemVO.class, new ImageElemBinder());
+        mAdapter.register(ImageElemVO.class, new ImageElemBinder(mBinding.recycler));
 
         mBinding.recycler.suppressLayout(false);
         mBinding.recycler.setItemViewCacheSize(0);
@@ -201,12 +201,7 @@ public class Test01Activity extends AppCompatActivity {
         mItems.add(imageElemVO);
         mAdapter.notifyDataSetChanged();
         int position = mItems.size() - 1;
-        mBinding.recycler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mBinding.recycler.scrollToPosition(mItems.size() - 1);
-            }
-        },150);
+        mBinding.recycler.scrollToPosition(mItems.size() - 1);
 
         V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
                 V2TIM_PRIORITY_DEFAULT, true, null,

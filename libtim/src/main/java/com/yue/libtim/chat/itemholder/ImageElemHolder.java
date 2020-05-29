@@ -3,6 +3,7 @@ package com.yue.libtim.chat.itemholder;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -57,7 +58,7 @@ public class ImageElemHolder extends MessageContentHolder {
     }
 
 
-    public void showMessage(final ImageElemVO elemVO) {
+    public void showMessage(final ImageElemVO elemVO, final RecyclerView recyclerView) {
         mFlMsgContent.setBackgroundColor(ivImage.getResources().getColor(android.R.color.transparent));
         /*重置view*/
 //        ivImage.setImageResource(R.drawable.ic_default_image);
@@ -76,7 +77,7 @@ public class ImageElemHolder extends MessageContentHolder {
         /*这儿还得处理一下 先这样*/
         if (elemVO.getTimMessage().isSelf()) {
             if (!TextUtils.isEmpty(elemVO.getTimElem().getPath()) && new File(elemVO.getTimElem().getPath()).exists()) {
-                showImage(elemVO.getTimElem().getPath());
+                showImage(elemVO.getTimElem().getPath(), recyclerView);
                 if (elemVO.getTimMessage().getStatus() == V2TIMMessage.V2TIM_MSG_STATUS_SENDING) {
                     llMask.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
@@ -99,10 +100,10 @@ public class ImageElemHolder extends MessageContentHolder {
                     btnReDown.setVisibility(View.GONE);
                 }
             } else {
-                downImage(imageList, elemVO.getTimMessage().getSender());
+                downImage(imageList, elemVO.getTimMessage().getSender(), recyclerView);
             }
         } else {
-            downImage(imageList, elemVO.getTimMessage().getSender());
+            downImage(imageList, elemVO.getTimMessage().getSender(), recyclerView);
         }
 
         /*重新下载*/
@@ -110,7 +111,7 @@ public class ImageElemHolder extends MessageContentHolder {
             @Override
             public void onClick(View v) {
                 if (!elemVO.getTimMessage().isSelf()) {
-                    downImage(imageList, elemVO.getTimMessage().getSender());
+                    downImage(imageList, elemVO.getTimMessage().getSender(), recyclerView);
                 } else {
 
                 }
@@ -124,7 +125,7 @@ public class ImageElemHolder extends MessageContentHolder {
      * @param imageList
      * @param userid    沙雕腾讯 不把url开放出来了
      */
-    private void downImage(List<V2TIMImageElem.V2TIMImage> imageList, String userid) {
+    private void downImage(List<V2TIMImageElem.V2TIMImage> imageList, String userid, final RecyclerView recyclerView) {
         for (V2TIMImageElem.V2TIMImage v2TIMImage : imageList) {
             String uuid = v2TIMImage.getUUID(); // 图片 ID
             int imageType = v2TIMImage.getType(); // 图片类型
@@ -199,7 +200,7 @@ public class ImageElemHolder extends MessageContentHolder {
                         progressBar.setVisibility(View.GONE);
                         tvProgress.setVisibility(View.GONE);
                         btnReDown.setVisibility(View.GONE);
-                        showImage(imagePath);
+                        showImage(imagePath, recyclerView);
 
                     }
                 });
@@ -209,13 +210,13 @@ public class ImageElemHolder extends MessageContentHolder {
                 tvProgress.setVisibility(View.GONE);
                 btnReDown.setVisibility(View.GONE);
                 // 图片已存在
-                showImage(imagePath);
+                showImage(imagePath, recyclerView);
             }
         }
     }
 
 
-    private void showImage(String path) {
+    private void showImage(String path, final RecyclerView recyclerView) {
         Glide.with(ivImage.getContext())
                 .asBitmap()
                 .load(path)
@@ -270,6 +271,7 @@ public class ImageElemHolder extends MessageContentHolder {
                         ivImage.setLayoutParams(params);
 
                         ivImage.setImageBitmap(resource);
+                        Log.i("shimy", "holder又tm执行了");
                     }
 
                     @Override

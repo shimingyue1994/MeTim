@@ -1,9 +1,11 @@
 package com.yue.libtim.chat.itembinder;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.yue.libtim.R;
@@ -19,6 +21,12 @@ import me.drakeet.multitype.ItemViewBinder;
  * @desc 图片消息
  */
 public class ImageElemBinder extends ItemViewBinder<ImageElemVO, ImageElemHolder> {
+    private RecyclerView recyclerView;
+
+    public ImageElemBinder(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+    }
+
     @NonNull
     @Override
     protected ImageElemHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
@@ -30,6 +38,7 @@ public class ImageElemBinder extends ItemViewBinder<ImageElemVO, ImageElemHolder
     protected void onBindViewHolder(@NonNull ImageElemHolder holder, @NonNull ImageElemVO item) {
         holder.showChatTime(item, getAdapter(), holder.getLayoutPosition());
         holder.showAvatars(item, holder.getLayoutPosition(), null);
-        holder.showMessage(item);
+        Log.i("shimy", "ItemViewBinder又tm执行了");
+        holder.showMessage(item,recyclerView);
     }
 }
