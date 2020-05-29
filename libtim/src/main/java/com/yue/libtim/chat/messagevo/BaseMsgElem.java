@@ -33,7 +33,7 @@ public class BaseMsgElem<T, E extends V2TIMElem> {
     private E timElem;//消息中的某一个元素，存在一个消息中多个元素的问题,但是正经人几乎不会这么干
 
 
-    /*本地对消息的已读判断*/
+    /*本地对消息的已读判断 在已读回执里标记自己的消息被读取了，在别人的消息里在markC2CMessageAsRead标记成功后设置*/
     private boolean isLocalRead = false;
     /**
      * 额外数据

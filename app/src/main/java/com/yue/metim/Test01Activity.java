@@ -259,16 +259,29 @@ public class Test01Activity extends AppCompatActivity {
                 String userID = v2TIMMessageReceipt.getUserID();
                 // 已读回执时间，聊天窗口中时间戳小于或等于 timestamp 的消息都可以被认为已读
                 long timestamp = v2TIMMessageReceipt.getTimestamp();
-                if (maxTimestamp < timestamp)
+                if (maxTimestamp <= timestamp)
                     maxTimestamp = timestamp;
             }
+            /*是否需要更新adapter  当自己的消息都已经是已读时，不需要更新*/
+            boolean isNotify = false;
             for (int i = 0; i < mItems.size(); i++) {
                 BaseMsgElem elem = (BaseMsgElem) mItems.get(i);
-                if (elem.getTimMessage().getTimestamp() <= maxTimestamp) {
+                if (!elem.getTimMessage().isSelf()) {
+                    continue;
+                }
+                if (elem.isLocalRead()) {
+                    continue;
+                }
+                long timestamp = elem.getTimMessage().getTimestamp();
+                if (timestamp <= maxTimestamp) {
+                    isNotify = true;
                     elem.setLocalRead(true);
                 }
             }
-            mAdapter.notifyDataSetChanged();
+            Log.i("shimy", "已读回执");
+            if (isNotify) {
+                mAdapter.notifyDataSetChanged();
+            }
         }
 
         @Override

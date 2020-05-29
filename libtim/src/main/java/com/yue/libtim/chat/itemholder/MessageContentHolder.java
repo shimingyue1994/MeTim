@@ -58,7 +58,7 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
     public ImageView mIvMsgStatus;//消息状态
 
     public MessageContentHolder(@NonNull View itemView, RecyclerView.Adapter adapter) {
-        super(itemView,adapter);
+        super(itemView, adapter);
 
         mIvLeftAvatar = itemView.findViewById(R.id.iv_left_user_icon);
         mLlRightAvatar = itemView.findViewById(R.id.ll_right_user_icon);
@@ -162,20 +162,24 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
                 mTvReadStatusSelf.setTextColor(0xff2e87e4);
             }
         } else {
-            //将来自 haven 的消息均标记为已读
-            V2TIMManager.getMessageManager().markC2CMessageAsRead(msg.getUserID(), new V2TIMCallback() {
-                @Override
-                public void onError(int code, String desc) {
-                    // 设置消息已读失败
-                    Log.i("shimy", "已读标记失败：" + code + desc);
-                }
+            if (message.isLocalRead() || msg.isRead()) {
+            } else {
+                //将来自 haven 的消息均标记为已读
+                V2TIMManager.getMessageManager().markC2CMessageAsRead(msg.getUserID(), new V2TIMCallback() {
+                    @Override
+                    public void onError(int code, String desc) {
+                        // 设置消息已读失败
+                        Log.i("shimy", "已读标记失败：" + code + desc);
+                    }
 
-                @Override
-                public void onSuccess() {
-                    // 设置消息已读成功
-                    Log.i("shimy", "已读标记成功");
-                }
-            });
+                    @Override
+                    public void onSuccess() {
+                        // 设置消息已读成功
+                        Log.i("shimy", "已读标记成功");
+                        message.setLocalRead(true);
+                    }
+                });
+            }
         }
         mFlMsgContent.setOnClickListener(new View.OnClickListener() {
             int clickCount = 0;
