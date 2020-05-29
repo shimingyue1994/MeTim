@@ -29,7 +29,7 @@ public class RevokeElemBinder extends ItemViewBinder<RevokeElemVO, RevokeElemHol
     @NonNull
     @Override
     protected RevokeElemHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
-        RevokeElemHolder holder = new RevokeElemHolder(MessageEmptyHolder.getView(inflater, parent));
+        RevokeElemHolder holder = new RevokeElemHolder(MessageEmptyHolder.getView(inflater, parent),getAdapter());
         return holder;
     }
 

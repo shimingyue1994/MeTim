@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -45,8 +46,8 @@ public class ImageElemHolder extends MessageContentHolder {
     public LinearLayout llMask;
     public Button btnReDown;
 
-    public ImageElemHolder(@NonNull View itemView) {
-        super(itemView);
+    public ImageElemHolder(@NonNull View itemView, RecyclerView.Adapter adapter) {
+        super(itemView,adapter);
         ivImage = itemView.findViewById(R.id.iv_image);
         progressBar = itemView.findViewById(R.id.progress);
         tvProgress = itemView.findViewById(R.id.tv_progress);
@@ -154,6 +155,7 @@ public class ImageElemHolder extends MessageContentHolder {
                         tvProgress.setVisibility(View.VISIBLE);
                         tvProgress.setText(FileDownloadUtils.byteHandle(progressInfo.getCurrentSize()) + "/" + FileDownloadUtils.byteHandle(progressInfo.getTotalSize()));
                         progressBar.setProgress(progress);
+
                     }
 
                     @Override
@@ -162,6 +164,7 @@ public class ImageElemHolder extends MessageContentHolder {
                         progressBar.setVisibility(View.GONE);
                         tvProgress.setText("下载失败");
                         btnReDown.setVisibility(View.VISIBLE);
+                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
@@ -171,6 +174,7 @@ public class ImageElemHolder extends MessageContentHolder {
                         Glide.with(ivImage.getContext())
                                 .load(imagePath)
                                 .into(ivImage);
+                        mAdapter.notifyDataSetChanged();
                     }
                 });
             } else {
@@ -180,6 +184,7 @@ public class ImageElemHolder extends MessageContentHolder {
 //                options.skipMemoryCache(true);
 //                options.diskCacheStrategy(DiskCacheStrategy.NONE);
                 showImage(imagePath);
+                mAdapter.notifyDataSetChanged();
 
             }
         }

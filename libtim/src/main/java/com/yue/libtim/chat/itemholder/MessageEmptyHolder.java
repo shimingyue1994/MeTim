@@ -3,6 +3,7 @@ package com.yue.libtim.chat.itemholder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -25,11 +26,14 @@ import me.drakeet.multitype.MultiTypeAdapter;
  * @desc 只有一个时间的布局
  */
 public abstract class MessageEmptyHolder extends RecyclerView.ViewHolder {
+    protected RecyclerView.Adapter  mAdapter;
+
     public TextView mChatTime;
     public FrameLayout mFlMsgEmpty;
 
-    public MessageEmptyHolder(@NonNull View itemView) {
+    public MessageEmptyHolder(@NonNull View itemView, RecyclerView.Adapter adapter) {
         super(itemView);
+        mAdapter = adapter;
         mChatTime = itemView.findViewById(R.id.tv_chat_time);
         mFlMsgEmpty = itemView.findViewById(R.id.fl_msg_empty);
         /*将消息内容布局设置*/

@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -56,8 +57,8 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
     public ProgressBar mProgressSending;//消息发送中的progress
     public ImageView mIvMsgStatus;//消息状态
 
-    public MessageContentHolder(@NonNull View itemView) {
-        super(itemView);
+    public MessageContentHolder(@NonNull View itemView, RecyclerView.Adapter adapter) {
+        super(itemView,adapter);
 
         mIvLeftAvatar = itemView.findViewById(R.id.iv_left_user_icon);
         mLlRightAvatar = itemView.findViewById(R.id.ll_right_user_icon);
@@ -83,7 +84,7 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
     /**
      * 显示view 头像 名字等view
      */
-    public void showAvatars(final BaseMsgElem message, MultiTypeAdapter adapter, final int position, final IMessageItemClick messageItemClick) {
+    public void showAvatars(final BaseMsgElem message, final int position, final IMessageItemClick messageItemClick) {
         V2TIMMessage msg = message.getTimMessage();
 
         //// 头像设置

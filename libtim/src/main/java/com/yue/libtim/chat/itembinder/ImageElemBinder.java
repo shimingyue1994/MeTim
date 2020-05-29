@@ -22,14 +22,14 @@ public class ImageElemBinder extends ItemViewBinder<ImageElemVO, ImageElemHolder
     @NonNull
     @Override
     protected ImageElemHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
-        ImageElemHolder holder = new ImageElemHolder(MessageEmptyHolder.getView(inflater, parent));
+        ImageElemHolder holder = new ImageElemHolder(MessageEmptyHolder.getView(inflater, parent), getAdapter());
         return holder;
     }
 
     @Override
     protected void onBindViewHolder(@NonNull ImageElemHolder holder, @NonNull ImageElemVO item) {
         holder.showChatTime(item, getAdapter(), holder.getLayoutPosition());
-        holder.showAvatars(item, getAdapter(), holder.getLayoutPosition(), null);
+        holder.showAvatars(item, holder.getLayoutPosition(), null);
         holder.showMessage(item);
     }
 }

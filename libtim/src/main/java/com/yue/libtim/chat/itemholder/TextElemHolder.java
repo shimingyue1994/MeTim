@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.tencent.imsdk.TIMMessage;
 import com.tencent.imsdk.TIMTextElem;
@@ -19,8 +20,8 @@ public class TextElemHolder extends MessageContentHolder {
 
     public TextView mTvMessage;
 
-    public TextElemHolder(@NonNull View itemView) {
-        super(itemView);
+    public TextElemHolder(@NonNull View itemView, RecyclerView.Adapter adapter) {
+        super(itemView,adapter);
         mTvMessage = itemView.findViewById(R.id.tv_msg_text);
     }
 

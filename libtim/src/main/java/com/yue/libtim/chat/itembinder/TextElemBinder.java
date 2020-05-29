@@ -33,14 +33,14 @@ public class TextElemBinder extends ItemViewBinder<TextElemVO, TextElemHolder> {
     @NonNull
     @Override
     protected TextElemHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
-        TextElemHolder holder = new TextElemHolder(MessageContentHolder.getView(inflater, parent));
+        TextElemHolder holder = new TextElemHolder(MessageContentHolder.getView(inflater, parent), getAdapter());
         return holder;
     }
 
     @Override
     protected void onBindViewHolder(@NonNull final TextElemHolder holder, @NonNull final TextElemVO item) {
         holder.showChatTime(item, getAdapter(), holder.getLayoutPosition());
-        holder.showAvatars(item, getAdapter(), holder.getLayoutPosition(),itemClick);
+        holder.showAvatars(item, holder.getLayoutPosition(), itemClick);
         V2TIMTextElem elem = (V2TIMTextElem) item.getTimElem();
         holder.showMessage(elem);
     }

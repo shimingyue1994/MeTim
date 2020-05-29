@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.yue.libtim.R;
 import com.yue.libtim.chat.messagevo.BaseMsgElem;
@@ -18,8 +19,8 @@ public class RevokeElemHolder extends MessageEmptyHolder {
     public TextView tvTip;
     public TextView tvDelete;
 
-    public RevokeElemHolder(@NonNull View itemView) {
-        super(itemView);
+    public RevokeElemHolder(@NonNull View itemView, RecyclerView.Adapter adapter) {
+        super(itemView,adapter);
         tvDelete = itemView.findViewById(R.id.tv_revoke_delete);
         tvTip = itemView.findViewById(R.id.tv_revoke_tip);
     }
