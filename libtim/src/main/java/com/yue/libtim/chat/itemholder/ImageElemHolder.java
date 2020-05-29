@@ -271,7 +271,7 @@ public class ImageElemHolder extends MessageContentHolder {
                         ivImage.setLayoutParams(params);
 
                         ivImage.setImageBitmap(resource);
-                        Log.i("shimy", "holder又tm执行了");
+                        Log.i("shimyHolder", "holder又tm执行了");
                     }
 
                     @Override
