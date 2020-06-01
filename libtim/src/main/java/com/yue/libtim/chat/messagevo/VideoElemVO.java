@@ -9,11 +9,21 @@ import com.tencent.imsdk.v2.V2TIMVideoElem;
  * @desc 视频元素
  */
 public class VideoElemVO extends BaseMsgElem<String, V2TIMVideoElem> {
+    private int sendProgress = 0;//发送的进度
+
     /**
      * @param timMessage 消息
      * @param timElem    这一条目的元素
      */
     public VideoElemVO(V2TIMMessage timMessage, V2TIMVideoElem timElem) {
         super(timMessage, timElem);
+    }
+
+    public int getSendProgress() {
+        return sendProgress;
+    }
+
+    public void setSendProgress(int sendProgress) {
+        this.sendProgress = sendProgress;
     }
 }

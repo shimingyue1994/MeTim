@@ -137,35 +137,58 @@ public class ImageElemHolder extends MessageContentHolder {
             /*根据返回的宽度改变视图，*/
             int width = v2TIMImage.getWidth(); // 图片宽度
             int height = v2TIMImage.getHeight(); // 图片高度
-            int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 150);
-            int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 330);
+            int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 100);
+            int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 260);
 
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
             FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-            if (width > maxWidth) {
-                paramsMask.width = maxWidth;
-                params.width = maxWidth;
+
+            //计算缩放比例
+            int scaleX = width / maxWidth;
+            int scaleY = height / maxHeight;
+            int scale = 1;
+            if (scaleX >= scaleY && scaleX > 1) {
+                scale = scaleX;
+            }
+            if (scaleY >= scaleX && scaleY > 1) {
+                scale = scaleY;
+            }
+
+            if (width > maxWidth || height > maxHeight) {
+                paramsMask.width = width / scale;
+                params.width = width / scale;
+                paramsMask.height = height / scale;
+                params.height = height / scale;
             } else {
                 paramsMask.width = width;
                 params.width = width;
-            }
-            if (height > maxHeight) {
-                paramsMask.height = maxHeight;
-                params.height = maxHeight;
-            } else {
                 paramsMask.height = height;
                 params.height = height;
             }
+//                        if (width > maxWidth) {
+//                            paramsMask.width = maxWidth;
+//                            params.width = maxWidth;
+//                        } else {
+//                            paramsMask.width = width;
+//                            params.width = width;
+//                        }
+//                        if (height > maxHeight) {
+//                            paramsMask.height = maxHeight;
+//                            params.height = maxHeight;
+//                        } else {
+//                            paramsMask.height = height;
+//                            params.height = height;
+//                        }
             ivImage.setLayoutParams(params);
             llMask.setLayoutParams(paramsMask);
 
-            File dir = new File(TUIKitConstants.IMAGE_MESSAGE_DIR);
+            File dir = new File(TUIKitConstants.MESSAGE_IMAGE_DIR);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
             // 设置图片下载路径 imagePath，这里可以用 uuid 作为标识，避免重复下载
-            final String imagePath = TUIKitConstants.IMAGE_MESSAGE_DIR + "thumb_" + userid + "_" + uuid;
+            final String imagePath = TUIKitConstants.MESSAGE_IMAGE_DIR + "thumb_" + userid + "_" + uuid;
             File imageFile = new File(imagePath);
             if (!imageFile.exists()) {
                 llMask.setVisibility(View.VISIBLE);

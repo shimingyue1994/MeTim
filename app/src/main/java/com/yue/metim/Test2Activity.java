@@ -55,7 +55,7 @@ public class Test2Activity extends AppCompatActivity {
             FileUtils.deleteDirFiles(new File(Constants.COMPRESS_IMAGE_CACHE));
         });
         mBinding.btnTest02.setOnClickListener(v -> {
-            AndroidQTransformUtils.copyPathToAndroidQ3(this, mSourcePath);
+            AndroidQTransformUtils.copyPathToAndroidQ3(this, mSourcePath,"");
 
         });
         mBinding.btnTest.setOnClickListener(v -> {
@@ -134,7 +134,7 @@ public class Test2Activity extends AppCompatActivity {
                             .into(mBinding.ivShow);
                     new Thread(() -> {
 
-                        String newPath = AndroidQTransformUtils.copyPathToAndroidQ3(Test2Activity.this, mSourcePath);
+                        String newPath = AndroidQTransformUtils.copyPathToAndroidQ3(Test2Activity.this, mSourcePath,"");
                         if (TextUtils.isEmpty(newPath)) {
                             runOnUiThread(new Runnable() {
                                 @Override

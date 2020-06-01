@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -19,6 +21,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -51,23 +56,32 @@ import com.tencent.imsdk.v2.V2TIMSoundElem;
 import com.tencent.imsdk.v2.V2TIMTextElem;
 import com.tencent.imsdk.v2.V2TIMUserInfo;
 import com.tencent.imsdk.v2.V2TIMVideoElem;
+import com.yue.libtim.TUIKit;
+import com.yue.libtim.TUIKitConstants;
 import com.yue.libtim.chat.interfaces.IMessageItemClick;
 import com.yue.libtim.chat.itembinder.ImageElemBinder;
 import com.yue.libtim.chat.itembinder.RevokeElemBinder;
 import com.yue.libtim.chat.itembinder.TextElemBinder;
+import com.yue.libtim.chat.itembinder.VideoElemBinder;
 import com.yue.libtim.chat.messagevo.BaseMsgElem;
 import com.yue.libtim.chat.messagevo.ImageElemVO;
 import com.yue.libtim.chat.messagevo.RevokeElemVO;
 import com.yue.libtim.chat.messagevo.TextElemVO;
+import com.yue.libtim.chat.messagevo.VideoElemVO;
 import com.yue.metim.constants.User;
 import com.yue.metim.databinding.ActivityTest01Binding;
 import com.yue.metim.utils.GlideEngine;
 import com.yue.metim.weight.msgpop.IMPopupView;
 import com.yue.metim.weight.msgpop.MsgPopAction;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import me.drakeet.multitype.Items;
 import me.drakeet.multitype.MultiTypeAdapter;
@@ -102,6 +116,7 @@ public class Test01Activity extends AppCompatActivity {
         });
         mAdapter.register(RevokeElemVO.class, revokeElemBinder);
         mAdapter.register(ImageElemVO.class, new ImageElemBinder(mBinding.recycler));
+        mAdapter.register(VideoElemVO.class, new VideoElemBinder());
 
         mBinding.recycler.suppressLayout(false);
         mBinding.recycler.setItemViewCacheSize(0);
@@ -246,11 +261,78 @@ public class Test01Activity extends AppCompatActivity {
      * 发送视频消息
      */
     public void sendVideo(LocalMedia localMedia) {
-//        localMedia.getMimeType();
-//        V2TIMMessage timMessage = V2TIMManager.getMessageManager().createVideoMessage(path);
-//        V2TIMImageElem imageElem = timMessage.getImageElem();
-//        ImageElemVO imageElemVO = new ImageElemVO(timMessage, imageElem);
-//        mItems.add(imageElemVO);
+        String miniType = localMedia.getMimeType();
+        if (miniType.contains("/") && miniType.split("/").length >= 2) {
+            miniType = miniType.split("/")[1];
+        }
+        String snapshotPath = "";
+        Glide.with(this)
+                .asBitmap()
+                .load(localMedia.getPath())
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        File dir = new File(TUIKitConstants.MESSAGE_VIDEO_SNAPSHOT);
+                        if (!dir.exists()){
+                            dir.mkdirs();
+                        }
+                        String snapshotPath = TUIKitConstants.MESSAGE_VIDEO_SNAPSHOT + "snapshot_"
+                                + V2TIMManager.getInstance().getLoginUser()
+                                + "_"
+                                + UUID.randomUUID().toString().replaceAll("-","")
+                                + ".jpg";
+                        File file = new File(snapshotPath);
+                        FileOutputStream os = null;
+                        try {
+                            os = new FileOutputStream(file);
+                            resource.compress(Bitmap.CompressFormat.JPEG, 100, os);
+                            os.flush();
+                            os.close();
+                            resource.recycle();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+        V2TIMMessage timMessage = V2TIMManager.getMessageManager().createVideoMessage(localMedia.getPath(), miniType, (int) localMedia.getDuration(), snapshotPath);
+        V2TIMVideoElem videoElem = timMessage.getVideoElem();
+        VideoElemVO videoElemVO = new VideoElemVO(timMessage, videoElem);
+        mItems.add(videoElemVO);
+        mAdapter.notifyDataSetChanged();
+        int position = mItems.size() - 1;
+        mBinding.recycler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.notifyItemChanged(position, mItems.size() - 1);
+                mBinding.recycler.scrollToPosition(mItems.size() - 1);
+            }
+        }, 500);
+
+
+        V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
+                V2TIM_PRIORITY_DEFAULT, true, null,
+                new V2TIMSendCallback<V2TIMMessage>() {
+                    @Override
+                    public void onProgress(int i) {
+                        videoElemVO.setSendProgress(i);
+                        mAdapter.notifyItemChanged(position);
+                    }
+
+                    @Override
+                    public void onError(int i, String s) {
+                        showTip("发送失败：code->" + i + "  " + s);
+                        mAdapter.notifyItemChanged(position);
+                    }
+
+                    @Override
+                    public void onSuccess(V2TIMMessage v2TIMMessage) {
+                        mAdapter.notifyItemChanged(position);
+                    }
+                });
     }
 
     /**
@@ -417,7 +499,13 @@ public class Test01Activity extends AppCompatActivity {
         } else if (elem instanceof V2TIMSoundElem) {
 
         } else if (elem instanceof V2TIMVideoElem) {
-
+            V2TIMVideoElem videoElem = (V2TIMVideoElem) elem;
+            VideoElemVO videoElemVO = new VideoElemVO(msg, videoElem);
+            if (isLoadHis) {
+                mItems.add(0, videoElemVO);
+            } else {
+                mItems.add(videoElemVO);
+            }
         } else if (elem instanceof V2TIMFileElem) {
 
         } else if (elem instanceof V2TIMLocationElem) {

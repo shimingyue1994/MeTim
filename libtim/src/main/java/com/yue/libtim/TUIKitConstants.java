@@ -7,20 +7,17 @@ public class TUIKitConstants {
     public static String APP_DIR = SD_CARD_PATH;
 
 
-    /*录音*/
-    public static String RECORD_DIR = APP_DIR + "/record/";
     /*录音下载*/
-    public static String RECORD_DOWNLOAD_DIR = APP_DIR + "/record/download/";
-    /*视频下载存放路径*/
-    public static String VIDEO_DOWNLOAD_DIR = APP_DIR + "/video/download/";
-    /*图片路径*/
-    public static String IMAGE_BASE_DIR = APP_DIR + "/image/";
-    /*消息图片存放路径*/
-    public static String IMAGE_MESSAGE_DIR = IMAGE_BASE_DIR + "message/";
+    public static String MESSAGE_RECORD_DIR = APP_DIR + "/record/";
+    /*视频消息下载存放路径*/
+    public static String MESSAGE_VIDEO_DIR = APP_DIR + "message/video/";
+    /*消息 图片存放路径 图片消息和视频快照*/
+    public static String MESSAGE_IMAGE_DIR = APP_DIR + "/message/image/";
+    public static String MESSAGE_VIDEO_SNAPSHOT = APP_DIR + "/message/snapshot/";
     /*多媒体*/
-    public static String MEDIA_DIR = APP_DIR + "/media";
+    public static String MESSAGE_MEDIA_DIR = APP_DIR + "/media";
     /*文件下载路径*/
-    public static String FILE_DOWNLOAD_DIR = APP_DIR + "/file/download/";
+    public static String MESSAGE_FILE_DIR = APP_DIR + "/file/";
     /*crash 日志存放路径*/
     public static String CRASH_LOG_DIR = APP_DIR + "/crash/";
 

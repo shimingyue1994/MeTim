@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import com.yue.metim.databinding.ActivityMainBinding;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding mBinding;
     private final static int REQ_PERMISSION_CODE = 0x1000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,8 +37,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-    }
+        mBinding.btnTest3.setOnClickListener(v -> {
+            Intent intent = new Intent(this, Test3Activity.class);
+            startActivity(intent);
+        });
 
+    }
 
 
     //////////////////////////////////    动态权限申请   ////////////////////////////////////////
