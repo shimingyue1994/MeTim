@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -60,15 +61,19 @@ import com.tencent.imsdk.v2.V2TIMVideoElem;
 import com.yue.libtim.TUIKit;
 import com.yue.libtim.TUIKitConstants;
 import com.yue.libtim.chat.interfaces.IMessageItemClick;
+import com.yue.libtim.chat.interfaces.impl.SimpleMessageItmeClick;
 import com.yue.libtim.chat.itembinder.ImageElemBinder;
 import com.yue.libtim.chat.itembinder.RevokeElemBinder;
+import com.yue.libtim.chat.itembinder.SoundElemBinder;
 import com.yue.libtim.chat.itembinder.TextElemBinder;
 import com.yue.libtim.chat.itembinder.VideoElemBinder;
 import com.yue.libtim.chat.messagevo.BaseMsgElem;
 import com.yue.libtim.chat.messagevo.ImageElemVO;
 import com.yue.libtim.chat.messagevo.RevokeElemVO;
+import com.yue.libtim.chat.messagevo.SoundElemVO;
 import com.yue.libtim.chat.messagevo.TextElemVO;
 import com.yue.libtim.chat.messagevo.VideoElemVO;
+import com.yue.libtim.utils.AudioPlayer;
 import com.yue.metim.constants.User;
 import com.yue.metim.databinding.ActivityTest01Binding;
 import com.yue.metim.utils.GlideEngine;
@@ -107,19 +112,7 @@ public class Test01Activity extends AppCompatActivity {
         identify = getIntent().getStringExtra("identify");
 
         V2TIMManager.getMessageManager().addAdvancedMsgListener(msgListener);
-
-        TextElemBinder textElemBinder = new TextElemBinder();
-        textElemBinder.setItemClick(messageItemClick);
-        mAdapter.register(TextElemVO.class, textElemBinder);
-        RevokeElemBinder revokeElemBinder = new RevokeElemBinder();
-        revokeElemBinder.setOnRevokeListener((position, item) -> {
-            handleDelete(item);
-        });
-        mAdapter.register(RevokeElemVO.class, revokeElemBinder);
-        mAdapter.register(ImageElemVO.class, new ImageElemBinder(mBinding.recycler));
-        VideoElemBinder videoElemBinder = new VideoElemBinder();
-        videoElemBinder.setItemClick(messageItemClick);
-        mAdapter.register(VideoElemVO.class, videoElemBinder);
+        registerBinder();
 
         mBinding.recycler.suppressLayout(false);
         mBinding.recycler.setItemViewCacheSize(0);
@@ -170,6 +163,32 @@ public class Test01Activity extends AppCompatActivity {
 
     }
 
+    private void registerBinder(){
+        TextElemBinder textElemBinder = new TextElemBinder();
+        textElemBinder.setItemClick(messageItemClick);
+        mAdapter.register(TextElemVO.class, textElemBinder);
+        RevokeElemBinder revokeElemBinder = new RevokeElemBinder();
+        revokeElemBinder.setOnRevokeListener((position, item) -> {
+            handleDelete(item);
+        });
+        mAdapter.register(RevokeElemVO.class, revokeElemBinder);
+        mAdapter.register(ImageElemVO.class, new ImageElemBinder(mBinding.recycler));
+        VideoElemBinder videoElemBinder = new VideoElemBinder();
+        videoElemBinder.setItemClick(messageItemClick);
+        mAdapter.register(VideoElemVO.class, videoElemBinder);
+        SoundElemBinder soundElemBinder = new SoundElemBinder();
+        soundElemBinder.setItemClick(new SimpleMessageItmeClick() {
+            @Override
+            public void onClickBubble(View view, int position, BaseMsgElem timMessage) {
+                super.onClickBubble(view, position, timMessage);
+                V2TIMSoundElem elem = (V2TIMSoundElem) timMessage.getTimElem();
+                /*气泡点击  播放音频*/
+                Log.i("shimySound",elem.getPath());
+            }
+        });
+        mAdapter.register(SoundElemVO.class,soundElemBinder);
+    }
+
     private void sends() {
         mBinding.btnSend.setOnClickListener(v -> {
             V2TIMMessage timMessage = V2TIMManager.getMessageManager().createTextMessage(mBinding.etInput.getText().toString());
@@ -218,6 +237,22 @@ public class Test01Activity extends AppCompatActivity {
                     .synOrAsy(true)
                     .imageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
                     .forResult(PictureConfig.CHOOSE_REQUEST + 1);
+        });
+        mBinding.btnStartSound.setOnClickListener(v -> {
+            File dir = new File(TUIKitConstants.MESSAGE_RECORD_DIR);
+            if (!dir.exists())
+                dir.mkdirs();
+            AudioPlayer.getInstance().startRecord(new AudioPlayer.Callback() {
+                @Override
+                public void onCompletion(Boolean success) {
+                    String audioPath = AudioPlayer.getInstance().getPath();
+                    Toast.makeText(Test01Activity.this, "" + audioPath, Toast.LENGTH_SHORT).show();
+                    sendAudio(audioPath);
+                }
+            });
+        });
+        mBinding.btnStopSound.setOnClickListener(v -> {
+            AudioPlayer.getInstance().stopRecord();
         });
     }
 
@@ -336,6 +371,47 @@ public class Test01Activity extends AppCompatActivity {
                         mAdapter.notifyItemChanged(position);
                     }
                 });
+    }
+
+    private void sendAudio(String path) {
+        try {
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(path);
+            mediaPlayer.prepare();
+            int duration = mediaPlayer.getDuration();
+            mediaPlayer.release();
+            mediaPlayer = null;
+            V2TIMMessage timMessage = V2TIMManager.getMessageManager().createSoundMessage(path, duration);
+            V2TIMSoundElem elem = timMessage.getSoundElem();
+            SoundElemVO soundElemVO = new SoundElemVO(timMessage, elem);
+            mItems.add(soundElemVO);
+            mAdapter.notifyDataSetChanged();
+            int position = mItems.size() - 1;
+            mBinding.recycler.scrollToPosition(mItems.size() - 1);
+            V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
+                    V2TIM_PRIORITY_DEFAULT, true, null,
+                    new V2TIMSendCallback<V2TIMMessage>() {
+                        @Override
+                        public void onProgress(int i) {
+                            soundElemVO.setSendProgress(i);
+                            mAdapter.notifyItemChanged(position);
+                        }
+
+                        @Override
+                        public void onError(int i, String s) {
+//                            showTip("发送失败：code->" + i + "  " + s);
+                            mAdapter.notifyItemChanged(position);
+                        }
+
+                        @Override
+                        public void onSuccess(V2TIMMessage v2TIMMessage) {
+                            mAdapter.notifyItemChanged(position);
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -500,7 +576,13 @@ public class Test01Activity extends AppCompatActivity {
                 mItems.add(imageElemVO);
             }
         } else if (elem instanceof V2TIMSoundElem) {
-
+            V2TIMSoundElem soundElem = (V2TIMSoundElem) elem;
+            SoundElemVO soundElemVO = new SoundElemVO(msg, soundElem);
+            if (isLoadHis) {
+                mItems.add(0, soundElemVO);
+            } else {
+                mItems.add(soundElemVO);
+            }
         } else if (elem instanceof V2TIMVideoElem) {
             V2TIMVideoElem videoElem = (V2TIMVideoElem) elem;
             VideoElemVO videoElemVO = new VideoElemVO(msg, videoElem);

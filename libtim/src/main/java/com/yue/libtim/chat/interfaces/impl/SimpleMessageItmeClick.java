@@ -15,6 +15,11 @@ import com.yue.libtim.chat.messagevo.BaseMsgElem;
 public abstract class SimpleMessageItmeClick implements IMessageItemClick {
 
     @Override
+    public void onClickFailStatus(View view, int position, BaseMsgElem timMessage) {
+
+    }
+
+    @Override
     public void onClickAvatar(View view, int position, BaseMsgElem timMessage) {
 
     }
@@ -26,6 +31,11 @@ public abstract class SimpleMessageItmeClick implements IMessageItemClick {
 
     @Override
     public void onClickBubble(View view, int position, BaseMsgElem timMessage) {
+
+    }
+
+    @Override
+    public void onDoubleClickBubble(View view, int position, BaseMsgElem timMessage) {
 
     }
 
