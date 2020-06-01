@@ -10,12 +10,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -68,6 +71,7 @@ import com.yue.libtim.chat.itembinder.SoundElemBinder;
 import com.yue.libtim.chat.itembinder.TextElemBinder;
 import com.yue.libtim.chat.itembinder.VideoElemBinder;
 import com.yue.libtim.chat.messagevo.BaseMsgElem;
+import com.yue.libtim.chat.messagevo.FileElemVO;
 import com.yue.libtim.chat.messagevo.ImageElemVO;
 import com.yue.libtim.chat.messagevo.RevokeElemVO;
 import com.yue.libtim.chat.messagevo.SoundElemVO;
@@ -97,6 +101,9 @@ import static com.tencent.imsdk.v2.V2TIMMessage.*;
 public class Test01Activity extends AppCompatActivity {
 
     private ActivityTest01Binding mBinding;
+    private final int REQUESTCODE_FILE = 0x1003;
+
+
     private Items mItems = new Items();
     private MultiTypeAdapter mAdapter = new MultiTypeAdapter(mItems);
     private String identify;
@@ -163,7 +170,7 @@ public class Test01Activity extends AppCompatActivity {
 
     }
 
-    private void registerBinder(){
+    private void registerBinder() {
         TextElemBinder textElemBinder = new TextElemBinder();
         textElemBinder.setItemClick(messageItemClick);
         mAdapter.register(TextElemVO.class, textElemBinder);
@@ -183,10 +190,10 @@ public class Test01Activity extends AppCompatActivity {
                 super.onClickBubble(view, position, timMessage);
                 V2TIMSoundElem elem = (V2TIMSoundElem) timMessage.getTimElem();
                 /*气泡点击  播放音频*/
-                Log.i("shimySound",elem.getPath());
+                Log.i("shimySound", elem.getPath());
             }
         });
-        mAdapter.register(SoundElemVO.class,soundElemBinder);
+        mAdapter.register(SoundElemVO.class, soundElemBinder);
     }
 
     private void sends() {
@@ -253,6 +260,13 @@ public class Test01Activity extends AppCompatActivity {
         });
         mBinding.btnStopSound.setOnClickListener(v -> {
             AudioPlayer.getInstance().stopRecord();
+        });
+
+        mBinding.btnFile.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            startActivityForResult(intent, REQUESTCODE_FILE);
         });
     }
 
@@ -412,6 +426,13 @@ public class Test01Activity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+
+    private void sendFile(String path) {
+        File file = new File(path);
+        Log.i("shimyFile",path);
+//        V2TIMMessage timMessage = V2TIMManager.getMessageManager().createFileMessage(path, file.getName());
     }
 
     /**
@@ -592,7 +613,13 @@ public class Test01Activity extends AppCompatActivity {
                 mItems.add(videoElemVO);
             }
         } else if (elem instanceof V2TIMFileElem) {
-
+            V2TIMFileElem fileElem = (V2TIMFileElem) elem;
+            FileElemVO fileElemVO = new FileElemVO(msg, fileElem);
+            if (isLoadHis) {
+                mItems.add(0, fileElemVO);
+            } else {
+                mItems.add(fileElemVO);
+            }
         } else if (elem instanceof V2TIMLocationElem) {
 
         } else if (elem instanceof V2TIMFaceElem) {
@@ -773,6 +800,29 @@ public class Test01Activity extends AppCompatActivity {
                 case PictureConfig.CHOOSE_REQUEST + 1: {//视频
                     List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
                     sendVideo(selectList.get(0));
+                }
+                break;
+                case REQUESTCODE_FILE: {
+                    if (data == null) {
+                        // 用户未选择任何文件，直接返回
+                        return;
+                    }
+                    Uri uri = data.getData(); // 获取用户选择文件的URI
+                    // 通过ContentProvider查询文件路径
+                    ContentResolver resolver = this.getContentResolver();
+                    Cursor cursor = resolver.query(uri, null, null, null, null);
+                    if (cursor == null) {
+                        // 未查询到，说明为普通文件，可直接通过URI获取文件路径
+                        String path = uri.getPath();
+                        sendFile(path);
+                        return;
+                    }
+                    if (cursor.moveToFirst()) {
+                        // 多媒体文件，从数据库中获取文件的真实路径
+                        String path = cursor.getString(cursor.getColumnIndex("_data"));
+                        sendFile(path);
+                    }
+                    cursor.close();
                 }
                 break;
             }

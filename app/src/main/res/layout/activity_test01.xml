@@ -94,6 +94,7 @@
                         android:minWidth="0dp"
                         android:minHeight="0dp"
                         android:text="开始语音" />
+
                     <Button
                         android:id="@+id/btn_stop_sound"
                         android:layout_width="wrap_content"
@@ -101,6 +102,14 @@
                         android:minWidth="0dp"
                         android:minHeight="0dp"
                         android:text="停止语音" />
+
+                    <Button
+                        android:id="@+id/btn_file"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:text="文件" />
                 </LinearLayout>
             </LinearLayout>
 
