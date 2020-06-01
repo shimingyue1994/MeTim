@@ -266,38 +266,38 @@ public class Test01Activity extends AppCompatActivity {
             miniType = miniType.split("/")[1];
         }
         String snapshotPath = "";
-        Glide.with(this)
-                .asBitmap()
-                .load(localMedia.getPath())
-                .into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        File dir = new File(TUIKitConstants.MESSAGE_VIDEO_SNAPSHOT);
-                        if (!dir.exists()){
-                            dir.mkdirs();
-                        }
-                        String snapshotPath = TUIKitConstants.MESSAGE_VIDEO_SNAPSHOT + "snapshot_"
-                                + V2TIMManager.getInstance().getLoginUser()
-                                + "_"
-                                + UUID.randomUUID().toString().replaceAll("-","")
-                                + ".jpg";
-                        File file = new File(snapshotPath);
-                        FileOutputStream os = null;
-                        try {
-                            os = new FileOutputStream(file);
-                            resource.compress(Bitmap.CompressFormat.JPEG, 100, os);
-                            os.flush();
-                            os.close();
-                            resource.recycle();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
+//        Glide.with(this)
+//                .asBitmap()
+//                .load(localMedia.getPath())
+//                .into(new CustomTarget<Bitmap>() {
+//                    @Override
+//                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+//                        File dir = new File(TUIKitConstants.MESSAGE_VIDEO_SNAPSHOT);
+//                        if (!dir.exists()){
+//                            dir.mkdirs();
+//                        }
+//                        String snapshotPath = TUIKitConstants.MESSAGE_VIDEO_SNAPSHOT + "snapshot_"
+//                                + V2TIMManager.getInstance().getLoginUser()
+//                                + "_"
+//                                + UUID.randomUUID().toString().replaceAll("-","")
+//                                + ".jpg";
+//                        File file = new File(snapshotPath);
+//                        FileOutputStream os = null;
+//                        try {
+//                            os = new FileOutputStream(file);
+//                            resource.compress(Bitmap.CompressFormat.JPEG, 100, os);
+////                            resource.recycle();
+//                            os.flush();
+//                            os.close();
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    @Override
+//                    public void onLoadCleared(@Nullable Drawable placeholder) {
+//
+//                    }
+//                });
         V2TIMMessage timMessage = V2TIMManager.getMessageManager().createVideoMessage(localMedia.getPath(), miniType, (int) localMedia.getDuration(), snapshotPath);
         V2TIMVideoElem videoElem = timMessage.getVideoElem();
         VideoElemVO videoElemVO = new VideoElemVO(timMessage, videoElem);
