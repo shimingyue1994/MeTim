@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
+import com.yue.libtim.chat.interfaces.IMessageItemClick;
 import com.yue.libtim.chat.itemholder.MessageEmptyHolder;
 import com.yue.libtim.chat.itemholder.VideoElemHolder;
 import com.yue.libtim.chat.messagevo.VideoElemVO;
@@ -17,7 +18,12 @@ import me.drakeet.multitype.ItemViewBinder;
  * @desc 视频消息
  */
 public class VideoElemBinder extends ItemViewBinder<VideoElemVO, VideoElemHolder> {
+    private IMessageItemClick itemClick;
 
+
+    public void setItemClick(IMessageItemClick itemClick) {
+        this.itemClick = itemClick;
+    }
     @NonNull
     @Override
     protected VideoElemHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
@@ -28,7 +34,7 @@ public class VideoElemBinder extends ItemViewBinder<VideoElemVO, VideoElemHolder
     @Override
     protected void onBindViewHolder(@NonNull VideoElemHolder holder, @NonNull VideoElemVO item) {
         holder.showChatTime(item, getAdapter(), holder.getLayoutPosition());
-        holder.showAvatars(item, holder.getLayoutPosition(), null);
+        holder.showAvatars(item, holder.getLayoutPosition(), itemClick);
         holder.showMessage(item);
     }
 }

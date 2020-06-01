@@ -181,6 +181,11 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
                 });
             }
         }
+        mIvMsgStatus.setOnClickListener(v -> {
+            if (messageItemClick != null) {
+                messageItemClick.onClickFailStatus(v, position, message);
+            }
+        });
         mFlMsgContent.setOnClickListener(new View.OnClickListener() {
             int clickCount = 0;
 

@@ -12,6 +12,7 @@ import com.yue.libtim.chat.messagevo.BaseMsgElem;
  */
 public interface IMessageItemClick {
 
+    void onClickFailStatus(View view, int position, BaseMsgElem timMessage);
     /**
      * 头像点击
      *

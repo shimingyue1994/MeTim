@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -116,7 +117,9 @@ public class Test01Activity extends AppCompatActivity {
         });
         mAdapter.register(RevokeElemVO.class, revokeElemBinder);
         mAdapter.register(ImageElemVO.class, new ImageElemBinder(mBinding.recycler));
-        mAdapter.register(VideoElemVO.class, new VideoElemBinder());
+        VideoElemBinder videoElemBinder = new VideoElemBinder();
+        videoElemBinder.setItemClick(messageItemClick);
+        mAdapter.register(VideoElemVO.class, videoElemBinder);
 
         mBinding.recycler.suppressLayout(false);
         mBinding.recycler.setItemViewCacheSize(0);
@@ -521,6 +524,22 @@ public class Test01Activity extends AppCompatActivity {
     }
 
     private IMessageItemClick messageItemClick = new IMessageItemClick() {
+
+        @Override
+        public void onClickFailStatus(View view, int position, BaseMsgElem timMessage) {
+            AlertDialog dialog = new AlertDialog.Builder(Test01Activity.this)
+                    .setMessage("是否重发")
+                    .setPositiveButton("重发", (dialog1, which) -> {
+                        dialog1.dismiss();
+                        handleMsgRepeat(position, timMessage);
+                    })
+                    .setNegativeButton("取消", (dialog12, which) -> {
+                        dialog12.dismiss();
+                    })
+                    .create();
+            dialog.show();
+        }
+
         @Override
         public void onClickAvatar(View view, int position, BaseMsgElem timMessage) {
 
