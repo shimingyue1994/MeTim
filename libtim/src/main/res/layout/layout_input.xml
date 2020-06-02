@@ -18,15 +18,32 @@
             android:layout_marginRight="5dp"
             android:src="@drawable/ic_input_voice" />
 
-        <EditText
-            android:id="@+id/et_input"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
-            android:layout_weight="1"
-            android:background="@drawable/shape_input_edit"
-            android:padding="6dp"
-            android:textSize="15sp" />
+            android:layout_weight="1">
+
+            <EditText
+                android:id="@+id/et_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/shape_input_edit"
+                android:padding="6dp"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btn_voice_press"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/selector_input_voice_press"
+                android:gravity="center"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:text="按住说话"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <ImageView
             android:id="@+id/iv_face"

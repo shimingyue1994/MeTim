@@ -4,7 +4,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +21,13 @@ import com.yue.libtim.R;
  * @desc 输入底部布局
  */
 public class InputLayout extends FrameLayout {
+
+    private ImageView ivVoice;
+    private ImageView ivFace;
+    private ImageView ivMore;
+    private EditText etInput;
+    private Button btnSend;
+    private Button btnVoicePress;//按住说话
 
     public InputLayout(@NonNull Context context) {
         this(context, null);
