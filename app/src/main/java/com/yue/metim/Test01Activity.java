@@ -38,9 +38,11 @@ import com.tencent.imsdk.v2.V2TIMSendCallback;
 import com.tencent.imsdk.v2.V2TIMSoundElem;
 import com.tencent.imsdk.v2.V2TIMTextElem;
 import com.tencent.imsdk.v2.V2TIMVideoElem;
+import com.yalantis.ucrop.util.FileUtils;
 import com.yue.libtim.TUIKitConstants;
 import com.yue.libtim.chat.interfaces.IMessageItemClick;
 import com.yue.libtim.chat.interfaces.impl.SimpleMessageItmeClick;
+import com.yue.libtim.chat.itembinder.FileElemBinder;
 import com.yue.libtim.chat.itembinder.ImageElemBinder;
 import com.yue.libtim.chat.itembinder.RevokeElemBinder;
 import com.yue.libtim.chat.itembinder.SoundElemBinder;
@@ -181,6 +183,9 @@ public class Test01Activity extends AppCompatActivity {
             }
         });
         mAdapter.register(SoundElemVO.class, soundElemBinder);
+
+        FileElemBinder fileElemBinder = new FileElemBinder();
+        mAdapter.register(FileElemVO.class, fileElemBinder);
     }
 
     private void sends() {
@@ -466,40 +471,47 @@ public class Test01Activity extends AppCompatActivity {
         @Override
         public void onRecvC2CReadReceipt(List<V2TIMMessageReceipt> receiptList) {
             super.onRecvC2CReadReceipt(receiptList);
-            synchronized (receiptList) {
-                long maxTimestamp = 0;//最大时间戳
-                // 由于接收方一次性可能会收到多个已读回执，所以这里采用了数组的回调形式
-                for (V2TIMMessageReceipt v2TIMMessageReceipt : receiptList) {
-                    // 消息接收者 receiver
-                    String userID = v2TIMMessageReceipt.getUserID();
-                    // 已读回执时间，聊天窗口中时间戳小于或等于 timestamp 的消息都可以被认为已读
-                    long timestamp = v2TIMMessageReceipt.getTimestamp();
-                    if (maxTimestamp <= timestamp)
-                        maxTimestamp = timestamp;
+            Log.i("shimyHz", "已读回止》");
+
+            long maxTimestamp = 0;//最大时间戳
+            // 由于接收方一次性可能会收到多个已读回执，所以这里采用了数组的回调形式
+            for (V2TIMMessageReceipt v2TIMMessageReceipt : receiptList) {
+                // 消息接收者 receiver
+                String userID = v2TIMMessageReceipt.getUserID();
+                // 已读回执时间，聊天窗口中时间戳小于或等于 timestamp 的消息都可以被认为已读
+                long timestamp = v2TIMMessageReceipt.getTimestamp();
+                if (maxTimestamp < timestamp)
+                    maxTimestamp = timestamp;
+            }
+
+            maxTimestamp = maxTimestamp + 3;
+            /*是否需要更新adapter  当自己的消息都已经是已读时，不需要更新*/
+            boolean isNotify = false;
+            for (int i = 0; i < mItems.size(); i++) {
+                BaseMsgElem elem = (BaseMsgElem) mItems.get(i);
+                long timestamp = elem.getTimMessage().getTimestamp();
+                if (!elem.getTimMessage().isSelf()) {
+                    continue;
                 }
-                /*是否需要更新adapter  当自己的消息都已经是已读时，不需要更新*/
-                boolean isNotify = false;
-                for (int i = 0; i < mItems.size(); i++) {
-                    BaseMsgElem elem = (BaseMsgElem) mItems.get(i);
-                    if (!elem.getTimMessage().isSelf()) {
-                        continue;
-                    }
-                    if (elem.isLocalRead()) {
-                        continue;
-                    }
-                    Log.i("shimyHz", "已读回执设置1");
-                    long timestamp = elem.getTimMessage().getTimestamp();
-                    if (timestamp <= maxTimestamp) {
-                        isNotify = true;
-                        elem.setLocalRead(true);
-                        Log.i("shimyHz", "已读回执设置2");
-                    }
+                if (elem.isLocalRead()) {
+                    continue;
                 }
-                Log.i("shimyHz", "已读回执");
-                if (isNotify) {
-                    mAdapter.notifyDataSetChanged();
+                if (timestamp <= maxTimestamp) {
+                    isNotify = true;
+                    elem.setLocalRead(true);
+                    Log.i("shimyHz", "已读回执设置2");
                 }
             }
+            Log.i("shimyHz", "已读回执");
+            boolean finalIsNotify = isNotify;
+            if (finalIsNotify) {
+                mAdapter.notifyDataSetChanged();
+                showTip("已读回执了");
+            } else {
+                showTip("没有回执了");
+            }
+
+
         }
 
         @Override
@@ -820,6 +832,7 @@ public class Test01Activity extends AppCompatActivity {
                     }
                     Uri uri = data.getData(); // 获取用户选择文件的URI
                     String path = FileUtil.getPathFromUri(this, uri);
+                    Log.i("shimyFile", path);
                     sendFile(path);
                 }
                 break;

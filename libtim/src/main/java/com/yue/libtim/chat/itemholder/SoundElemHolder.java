@@ -102,7 +102,7 @@ public class SoundElemHolder extends MessageContentHolder {
             dir.mkdirs();
         }
         // 设置图片下载路径 imagePath，这里可以用 uuid 作为标识，避免重复下载
-        final String soundPath = TUIKitConstants.MESSAGE_IMAGE_DIR + "sound_" + elemVO.getTimMessage().getSender() + "_" + elemVO.getTimElem().getUUID();
+        final String soundPath = TUIKitConstants.MESSAGE_IMAGE_DIR + "sound_" + elemVO.getTimElem().getUUID();
         Log.i("shimyFileUUID", elemVO.getTimElem().getUUID());
         File file = new File(soundPath);
         if (file.exists()) {

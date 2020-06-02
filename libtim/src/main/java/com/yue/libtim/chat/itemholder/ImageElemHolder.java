@@ -128,7 +128,7 @@ public class ImageElemHolder extends MessageContentHolder {
     private void downImage(List<V2TIMImageElem.V2TIMImage> imageList, String userid, final RecyclerView recyclerView) {
         for (V2TIMImageElem.V2TIMImage v2TIMImage : imageList) {
             String uuid = v2TIMImage.getUUID(); // 图片 ID
-            Log.i("shimyFileUUID",uuid);
+            Log.i("shimyFileUUID", uuid);
             int imageType = v2TIMImage.getType(); // 图片类型
             if (imageType != TIMImageType.Thumb.value()) {
                 /*不是缩略图不下载*/
@@ -189,7 +189,7 @@ public class ImageElemHolder extends MessageContentHolder {
                 dir.mkdirs();
             }
             // 设置图片下载路径 imagePath，这里可以用 uuid 作为标识，避免重复下载
-            final String imagePath = TUIKitConstants.MESSAGE_IMAGE_DIR + "thumb_" + userid + "_" + uuid;
+            final String imagePath = TUIKitConstants.MESSAGE_IMAGE_DIR + "thumb_" + uuid;
             File imageFile = new File(imagePath);
             if (!imageFile.exists()) {
                 llMask.setVisibility(View.VISIBLE);

@@ -125,7 +125,7 @@ public class VideoElemHolder extends MessageContentHolder {
             dir.mkdirs();
         }
         // 设置图片下载路径 imagePath，这里可以用 uuid 作为标识，避免重复下载
-        String videoPath = TUIKitConstants.MESSAGE_VIDEO_DIR + "video_" + elemVO.getTimMessage().getSender() + "_" + videoElem.getVideoUUID();
+        String videoPath = TUIKitConstants.MESSAGE_VIDEO_DIR + "video_" + videoElem.getVideoUUID();
         Log.i("shimyFileUUID", elemVO.getTimElem().getVideoUUID());
         File videoFile = new File(videoPath);
         /*如果视频文件存在*/

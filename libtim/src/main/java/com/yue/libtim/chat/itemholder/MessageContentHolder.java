@@ -163,6 +163,7 @@ public abstract class MessageContentHolder extends MessageEmptyHolder {
             }
         } else {
             if (message.isLocalRead() || msg.isRead()) {
+
             } else {
                 //将来自 haven 的消息均标记为已读
                 V2TIMManager.getMessageManager().markC2CMessageAsRead(msg.getUserID(), new V2TIMCallback() {

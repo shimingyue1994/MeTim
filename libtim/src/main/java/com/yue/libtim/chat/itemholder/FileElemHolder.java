@@ -36,6 +36,7 @@ public class FileElemHolder extends MessageContentHolder {
     public TextView tvProgress;
     public ImageView ivFile;
     private ImageView ivDownload;
+    private TextView tvFileName;
 
     public FileElemHolder(@NonNull View itemView, RecyclerView.Adapter adapter) {
         super(itemView, adapter);
@@ -43,6 +44,7 @@ public class FileElemHolder extends MessageContentHolder {
         tvProgress = itemView.findViewById(R.id.tv_progress);
         ivFile = itemView.findViewById(R.id.iv_file);
         ivDownload = itemView.findViewById(R.id.iv_download);
+        tvFileName = itemView.findViewById(R.id.tv_file_name);
     }
 
 
@@ -52,15 +54,11 @@ public class FileElemHolder extends MessageContentHolder {
         ivDownload.setVisibility(View.GONE);
         tvProgress.setText("");
         progressBar.setProgress(0);
-        if (elemVO.getTimMessage().isSelf()) {
-            ivFile.setImageResource(R.drawable.ic_voice_right);
-        } else {
-            ivFile.setImageResource(R.drawable.ic_voice_left);
-        }
-
+        tvFileName.setText(elemVO.getTimElem().getFileName());
         /*这儿还得处理一下 先这样*/
         if (elemVO.getTimMessage().isSelf()) {
-            if (!TextUtils.isEmpty(elemVO.getTimElem().getPath()) && new File(elemVO.getTimElem().getPath()).exists()) {
+            File file = new File(elemVO.getTimElem().getPath());
+            if (!TextUtils.isEmpty(elemVO.getTimElem().getPath()) && file.exists()) {
                 if (elemVO.getTimMessage().getStatus() == V2TIMMessage.V2TIM_MSG_STATUS_SENDING) {
                     progressBar.setVisibility(View.VISIBLE);
                     tvProgress.setVisibility(View.VISIBLE);
@@ -105,8 +103,9 @@ public class FileElemHolder extends MessageContentHolder {
             dir.mkdirs();
         }
         // 设置图片下载路径 imagePath，这里可以用 uuid 作为标识，避免重复下载
-        final String soundPath = TUIKitConstants.MESSAGE_IMAGE_DIR + "file_" + elemVO.getTimMessage().getSender() + "_" + elemVO.getTimElem().getUUID();
-        Log.i("shimyFileUUID",elemVO.getTimElem().getUUID());
+        final String soundPath = TUIKitConstants.MESSAGE_FILE_DIR + "file_" + elemVO.getTimElem().getUUID();
+
+        Log.i("shimyFileUUID", elemVO.getTimElem().getUUID());
         File file = new File(soundPath);
         if (file.exists()) {
             tvProgress.setVisibility(View.GONE);
