@@ -42,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        mBinding.btnTest4.setOnClickListener(v -> {
+            Intent intent = new Intent(this, Test4Activity.class);
+            startActivity(intent);
+        });
+
     }
 
 
