@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -23,6 +25,17 @@ import com.yue.libtim.R;
  * @desc 输入底部布局
  */
 public class InputLayout extends FrameLayout {
+
+
+    private enum InputState {
+        INPUT_VOICE,
+        INPUT_FACE,
+        INPUT_MORE,
+        INPUT_TEXT
+    }
+
+    /*当前的输入状态*/
+    private InputState inputState = InputState.INPUT_TEXT;
 
     private ImageView ivVoice;
     private ImageView ivFace;
@@ -64,7 +77,15 @@ public class InputLayout extends FrameLayout {
     private void initView() {
         /*语音按钮*/
         ivVoice.setOnClickListener(v -> {
+            if (inputState == InputState.INPUT_TEXT) {
 
+            } else if (inputState == InputState.INPUT_VOICE) {
+
+            } else if (inputState == InputState.INPUT_MORE) {
+
+            } else if (inputState == InputState.INPUT_FACE) {
+
+            }
         });
         /*表情按钮*/
         ivFace.setOnClickListener(v -> {
@@ -72,7 +93,7 @@ public class InputLayout extends FrameLayout {
         });
         /*更多操作的按钮*/
         ivMore.setOnClickListener(v -> {
-
+            hideSoftInput();
         });
         /*发送按钮*/
         btnSend.setOnClickListener(v -> {
@@ -100,7 +121,33 @@ public class InputLayout extends FrameLayout {
             return false;
         });
     }
+    /**
+     * 显示软键盘布局
+     */
+    private void showSoftInput() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(etInput, 0);
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
 
+//                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            }
+        }, 200);
+
+
+
+    }
+
+    /**
+     * 隐藏软键盘
+     */
+    public void hideSoftInput() {
+//        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0);
+        etInput.clearFocus();
+    }
     public void setInputText(String text) {
         etInput.setText(text);
         btnSend.setVisibility(VISIBLE);
