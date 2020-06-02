@@ -506,9 +506,9 @@ public class Test01Activity extends AppCompatActivity {
             boolean finalIsNotify = isNotify;
             if (finalIsNotify) {
                 mAdapter.notifyDataSetChanged();
-                showTip("已读回执了");
+                Log.i("shimyHz", "已读回执了");
             } else {
-                showTip("没有回执了");
+                Log.i("shimyHz", "没有回执了");
             }
 
 
