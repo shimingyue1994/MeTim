@@ -8,7 +8,7 @@
             <solid android:color="#FFFFFF" />
         </shape>
     </item>
-    <item android:state_pressed="true">
+    <item android:state_checkable="true" android:state_pressed="true" android:state_selected="true">
         <shape>
             <corners android:radius="2dp"></corners>
             <solid android:color="#959595" />
