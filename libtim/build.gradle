@@ -58,7 +58,7 @@ dependencies {
     api 'com.github.promeg:tinypinyin:2.0.3'// TinyPinyin核心包，约80KB
     api 'androidx.recyclerview:recyclerview:1.1.0'
 
-
+    api 'cn.hutool:hutool-all:5.3.6'
 
     api 'com.tencent.imsdk:imsdk:4+'
 }

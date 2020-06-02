@@ -1,6 +1,7 @@
 package com.yue.libtim.chat.itemholder;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -21,6 +22,8 @@ import com.yue.libtim.chat.messagevo.SoundElemVO;
 import com.yue.libtim.utils.FileDownloadUtils;
 
 import java.io.File;
+
+import cn.hutool.core.io.FileUtil;
 
 /**
  * @author shimy
@@ -103,6 +106,7 @@ public class FileElemHolder extends MessageContentHolder {
         }
         // 设置图片下载路径 imagePath，这里可以用 uuid 作为标识，避免重复下载
         final String soundPath = TUIKitConstants.MESSAGE_IMAGE_DIR + "file_" + elemVO.getTimMessage().getSender() + "_" + elemVO.getTimElem().getUUID();
+        Log.i("shimyFileUUID",elemVO.getTimElem().getUUID());
         File file = new File(soundPath);
         if (file.exists()) {
             tvProgress.setVisibility(View.GONE);

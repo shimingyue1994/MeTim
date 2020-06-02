@@ -128,6 +128,7 @@ public class ImageElemHolder extends MessageContentHolder {
     private void downImage(List<V2TIMImageElem.V2TIMImage> imageList, String userid, final RecyclerView recyclerView) {
         for (V2TIMImageElem.V2TIMImage v2TIMImage : imageList) {
             String uuid = v2TIMImage.getUUID(); // 图片 ID
+            Log.i("shimyFileUUID",uuid);
             int imageType = v2TIMImage.getType(); // 图片类型
             if (imageType != TIMImageType.Thumb.value()) {
                 /*不是缩略图不下载*/

@@ -1,6 +1,15 @@
 package com.yue.metim;
 
-import androidx.annotation.NonNull;
+import android.app.Activity;
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,39 +18,10 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
-import com.tencent.imsdk.TIMConversation;
-import com.tencent.imsdk.TIMConversationType;
-import com.tencent.imsdk.TIMManager;
-import com.tencent.imsdk.TIMMessage;
-import com.tencent.imsdk.TIMMessageListener;
-import com.tencent.imsdk.TIMTextElem;
-import com.tencent.imsdk.TIMValueCallBack;
 import com.tencent.imsdk.v2.V2TIMAdvancedMsgListener;
 import com.tencent.imsdk.v2.V2TIMCallback;
 import com.tencent.imsdk.v2.V2TIMCustomElem;
@@ -53,15 +33,11 @@ import com.tencent.imsdk.v2.V2TIMImageElem;
 import com.tencent.imsdk.v2.V2TIMLocationElem;
 import com.tencent.imsdk.v2.V2TIMManager;
 import com.tencent.imsdk.v2.V2TIMMessage;
-import com.tencent.imsdk.v2.V2TIMMessageManager;
 import com.tencent.imsdk.v2.V2TIMMessageReceipt;
 import com.tencent.imsdk.v2.V2TIMSendCallback;
-import com.tencent.imsdk.v2.V2TIMSimpleMsgListener;
 import com.tencent.imsdk.v2.V2TIMSoundElem;
 import com.tencent.imsdk.v2.V2TIMTextElem;
-import com.tencent.imsdk.v2.V2TIMUserInfo;
 import com.tencent.imsdk.v2.V2TIMVideoElem;
-import com.yue.libtim.TUIKit;
 import com.yue.libtim.TUIKitConstants;
 import com.yue.libtim.chat.interfaces.IMessageItemClick;
 import com.yue.libtim.chat.interfaces.impl.SimpleMessageItmeClick;
@@ -78,6 +54,7 @@ import com.yue.libtim.chat.messagevo.SoundElemVO;
 import com.yue.libtim.chat.messagevo.TextElemVO;
 import com.yue.libtim.chat.messagevo.VideoElemVO;
 import com.yue.libtim.utils.AudioPlayer;
+import com.yue.libtim.utils.FileUtil;
 import com.yue.metim.constants.User;
 import com.yue.metim.databinding.ActivityTest01Binding;
 import com.yue.metim.utils.GlideEngine;
@@ -85,18 +62,28 @@ import com.yue.metim.weight.msgpop.IMPopupView;
 import com.yue.metim.weight.msgpop.MsgPopAction;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import me.drakeet.multitype.Items;
 import me.drakeet.multitype.MultiTypeAdapter;
 
-import static com.tencent.imsdk.v2.V2TIMMessage.*;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_CUSTOM;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_FACE;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_FILE;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_GROUP_TIPS;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_IMAGE;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_LOCATION;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_NONE;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_SOUND;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_TEXT;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_ELEM_TYPE_VIDEO;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_MSG_STATUS_HAS_DELETED;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_MSG_STATUS_LOCAL_REVOKED;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_MSG_STATUS_SEND_FAIL;
+import static com.tencent.imsdk.v2.V2TIMMessage.V2TIM_PRIORITY_DEFAULT;
 
 public class Test01Activity extends AppCompatActivity {
 
@@ -431,8 +418,32 @@ public class Test01Activity extends AppCompatActivity {
 
     private void sendFile(String path) {
         File file = new File(path);
-        Log.i("shimyFile",path);
-//        V2TIMMessage timMessage = V2TIMManager.getMessageManager().createFileMessage(path, file.getName());
+        V2TIMMessage timMessage = V2TIMManager.getMessageManager().createFileMessage(path, file.getName());
+        V2TIMFileElem elem = timMessage.getFileElem();
+        FileElemVO fileElemVO = new FileElemVO(timMessage, elem);
+        mItems.add(fileElemVO);
+        mAdapter.notifyDataSetChanged();
+        int position = mItems.size() - 1;
+        V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
+                V2TIM_PRIORITY_DEFAULT, true, null,
+                new V2TIMSendCallback<V2TIMMessage>() {
+                    @Override
+                    public void onProgress(int i) {
+                        fileElemVO.setSendProgress(i);
+                        mAdapter.notifyItemChanged(position);
+                    }
+
+                    @Override
+                    public void onError(int i, String s) {
+                        showTip("发送失败：code->" + i + "  " + s);
+                        mAdapter.notifyItemChanged(position);
+                    }
+
+                    @Override
+                    public void onSuccess(V2TIMMessage v2TIMMessage) {
+                        mAdapter.notifyItemChanged(position);
+                    }
+                });
     }
 
     /**
@@ -808,21 +819,8 @@ public class Test01Activity extends AppCompatActivity {
                         return;
                     }
                     Uri uri = data.getData(); // 获取用户选择文件的URI
-                    // 通过ContentProvider查询文件路径
-                    ContentResolver resolver = this.getContentResolver();
-                    Cursor cursor = resolver.query(uri, null, null, null, null);
-                    if (cursor == null) {
-                        // 未查询到，说明为普通文件，可直接通过URI获取文件路径
-                        String path = uri.getPath();
-                        sendFile(path);
-                        return;
-                    }
-                    if (cursor.moveToFirst()) {
-                        // 多媒体文件，从数据库中获取文件的真实路径
-                        String path = cursor.getString(cursor.getColumnIndex("_data"));
-                        sendFile(path);
-                    }
-                    cursor.close();
+                    String path = FileUtil.getPathFromUri(this, uri);
+                    sendFile(path);
                 }
                 break;
             }
