@@ -66,51 +66,72 @@
                         android:text="发送" />
                 </LinearLayout>
 
-                <LinearLayout
+                <HorizontalScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content">
 
-                    <Button
-                        android:id="@+id/btn_send_image"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:text="图片" />
+                        android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btn_send_video"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:text="视频" />
+                        <Button
+                            android:id="@+id/btn_send_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:text="图片" />
 
-                    <Button
-                        android:id="@+id/btn_start_sound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:text="开始语音" />
+                        <Button
+                            android:id="@+id/btn_send_video"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:text="视频" />
 
-                    <Button
-                        android:id="@+id/btn_stop_sound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:text="停止语音" />
+                        <Button
+                            android:id="@+id/btn_start_sound"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:text="开始语音" />
 
-                    <Button
-                        android:id="@+id/btn_file"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:text="文件" />
-                </LinearLayout>
+                        <Button
+                            android:id="@+id/btn_stop_sound"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:text="停止语音" />
+
+                        <Button
+                            android:id="@+id/btn_file"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:text="文件" />
+
+                        <Button
+                            android:id="@+id/btn_location"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:text="定位" />
+
+                        <Button
+                            android:id="@+id/btn_face"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:text="表情" />
+                    </LinearLayout>
+                </HorizontalScrollView>
             </LinearLayout>
 
         </RelativeLayout>

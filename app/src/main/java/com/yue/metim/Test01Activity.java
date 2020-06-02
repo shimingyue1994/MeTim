@@ -260,6 +260,16 @@ public class Test01Activity extends AppCompatActivity {
             intent.setType("*/*");
             startActivityForResult(intent, REQUESTCODE_FILE);
         });
+
+        mBinding.btnLocation.setOnClickListener(v -> {
+//            V2TIMMessage timMessage = V2TIMManager.getMessageManager().createLocationMessage()
+            Toast.makeText(this, "需要调用地图获取经纬度 自行处理", Toast.LENGTH_SHORT).show();
+        });
+
+        mBinding.btnFace.setOnClickListener(v -> {
+//            V2TIMMessage timMessage = V2TIMManager.getMessageManager().createFaceMessage()
+            Toast.makeText(this, "表情将不封装在lib中", Toast.LENGTH_SHORT).show();
+        });
     }
 
 
