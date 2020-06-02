@@ -267,7 +267,8 @@ public class Test01Activity extends AppCompatActivity {
         });
 
         mBinding.btnFace.setOnClickListener(v -> {
-//            V2TIMMessage timMessage = V2TIMManager.getMessageManager().createFaceMessage()
+            V2TIMMessage timMessage = V2TIMManager.getMessageManager().createFaceMessage(1, null);
+            timMessage.getFaceElem().getData();
             Toast.makeText(this, "表情将不封装在lib中", Toast.LENGTH_SHORT).show();
         });
     }
