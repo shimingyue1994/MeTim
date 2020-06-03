@@ -46,6 +46,7 @@ public class InputLayout extends FrameLayout {
     private EditText etInput;
     private Button btnSend;
     private Button btnVoicePress;//按住说话
+    private FrameLayout flMore;
     private AppCompatActivity activity;
 
     public InputLayout(@NonNull Context context) {
@@ -65,6 +66,7 @@ public class InputLayout extends FrameLayout {
         etInput = view.findViewById(R.id.et_input);
         btnSend = view.findViewById(R.id.btn_send);
         btnVoicePress = view.findViewById(R.id.btn_voice_press);
+        flMore = view.findViewById(R.id.fl_more);
         if (!TextUtils.isEmpty(etInput.getText().toString())) {
             btnSend.setVisibility(VISIBLE);
             ivMore.setVisibility(GONE);
@@ -103,7 +105,9 @@ public class InputLayout extends FrameLayout {
         ivMore.setOnClickListener(v -> {
             if (inputState != InputState.INPUT_MORE) {
                 inputState = InputState.INPUT_MORE;
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 hideSoftInput();
+                flMore.setVisibility(VISIBLE);
                 showActionsGroup();
             } else {
                 inputState = InputState.INPUT_TEXT;

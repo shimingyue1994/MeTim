@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class InputMoreFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_input_more, container, false);
         ViewGroup.LayoutParams params = view.getLayoutParams();
         params.height = SoftKeyBoardUtil.getSoftKeyBoardHeight();
+        Log.i("shimySoft",params.height+"");
         view.setLayoutParams(params);
         return view;
     }
