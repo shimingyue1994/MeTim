@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.yue.libtim.R;
 import com.yue.libtim.fragment.InputMoreFragment;
+import com.yue.libtim.utils.soft.SoftKeyBoardUtil;
 
 /**
  * @author shimy
@@ -108,11 +109,22 @@ public class InputLayout extends FrameLayout {
         ivMore.setOnClickListener(v -> {
             if (inputState != InputState.INPUT_MORE) {
                 inputState = InputState.INPUT_MORE;
-                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                hideSoftInput();
-                flMore.setVisibility(VISIBLE);
-                showActionsGroup();
+
+                if (SoftKeyBoardUtil.getSaveHeight() > 0) {
+
+                } else {
+                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                    hideSoftInput();
+                    flMore.setVisibility(VISIBLE);
+                    showMore();
+                }
+
+
             } else {
+                if (SoftKeyBoardUtil.getSaveHeight() > 0) {
+
+                }
+
                 activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 inputState = InputState.INPUT_TEXT;
                 flMore.setVisibility(GONE);
@@ -125,16 +137,16 @@ public class InputLayout extends FrameLayout {
         });
     }
 
-    InputMoreFragment actionsFragment;
+    InputMoreFragment inputMoreFragment;
 
     /**
      * 显示更多的布局
      */
-    private void showActionsGroup() {
+    private void showMore() {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        if (actionsFragment == null)
-            actionsFragment = new InputMoreFragment();
-        fragmentManager.beginTransaction().replace(R.id.fl_more, actionsFragment).commitAllowingStateLoss();
+        if (inputMoreFragment == null)
+            inputMoreFragment = new InputMoreFragment();
+        fragmentManager.beginTransaction().replace(R.id.fl_more, inputMoreFragment).commitAllowingStateLoss();
     }
 
     private void initVoicePress() {

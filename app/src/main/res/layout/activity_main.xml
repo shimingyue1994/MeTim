@@ -11,6 +11,10 @@
         android:orientation="vertical"
         tools:context=".MainActivity">
 
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <Button
             android:id="@+id/btn_test"
             android:layout_width="match_parent"
