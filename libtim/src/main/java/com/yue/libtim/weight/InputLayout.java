@@ -54,7 +54,7 @@ public class InputLayout extends FrameLayout {
 
     public InputLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        View view = View.inflate(context, R.layout.layout_input, this);
+        View view = View.inflate(context, R.layout.layout_input2, this);
         ivVoice = view.findViewById(R.id.iv_voice);
         ivFace = view.findViewById(R.id.iv_face);
         ivMore = view.findViewById(R.id.iv_more);

@@ -21,4 +21,8 @@ public class TUIKitConstants {
     /*crash 日志存放路径*/
     public static String CRASH_LOG_DIR = APP_DIR + "/crash/";
 
+
+    public static String UI_PARAMS = "ilive_ui_params";
+    public static String SOFT_KEY_BOARD_HEIGHT = "soft_key_board_height";
+
 }
