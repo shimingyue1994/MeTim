@@ -16,8 +16,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.yue.libtim.R;
+import com.yue.libtim.fragment.InputMoreFragment;
 
 /**
  * @author shimy
@@ -43,6 +46,7 @@ public class InputLayout extends FrameLayout {
     private EditText etInput;
     private Button btnSend;
     private Button btnVoicePress;//按住说话
+    private AppCompatActivity activity;
 
     public InputLayout(@NonNull Context context) {
         this(context, null);
@@ -68,10 +72,14 @@ public class InputLayout extends FrameLayout {
             btnSend.setVisibility(GONE);
             ivMore.setVisibility(VISIBLE);
         }
-        etInput.setVisibility(GONE);
-        btnVoicePress.setVisibility(VISIBLE);
+//        etInput.setVisibility(GONE);
+//        btnVoicePress.setVisibility(VISIBLE);
         initView();
         initVoicePress();
+    }
+
+    public void init(AppCompatActivity activity) {
+        this.activity = activity;
     }
 
     private void initView() {
@@ -93,12 +101,31 @@ public class InputLayout extends FrameLayout {
         });
         /*更多操作的按钮*/
         ivMore.setOnClickListener(v -> {
-            hideSoftInput();
+            if (inputState != InputState.INPUT_MORE) {
+                inputState = InputState.INPUT_MORE;
+                hideSoftInput();
+                showActionsGroup();
+            } else {
+                inputState = InputState.INPUT_TEXT;
+                showSoftInput();
+            }
         });
         /*发送按钮*/
         btnSend.setOnClickListener(v -> {
 
         });
+    }
+
+    InputMoreFragment actionsFragment;
+
+    /**
+     * 显示更多的布局
+     */
+    private void showActionsGroup() {
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        if (actionsFragment == null)
+            actionsFragment = new InputMoreFragment();
+        fragmentManager.beginTransaction().replace(R.id.fl_more, actionsFragment).commitAllowingStateLoss();
     }
 
     private void initVoicePress() {
@@ -121,6 +148,7 @@ public class InputLayout extends FrameLayout {
             return false;
         });
     }
+
     /**
      * 显示软键盘布局
      */
@@ -136,7 +164,6 @@ public class InputLayout extends FrameLayout {
         }, 200);
 
 
-
     }
 
     /**
@@ -148,6 +175,7 @@ public class InputLayout extends FrameLayout {
         imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0);
         etInput.clearFocus();
     }
+
     public void setInputText(String text) {
         etInput.setText(text);
         btnSend.setVisibility(VISIBLE);

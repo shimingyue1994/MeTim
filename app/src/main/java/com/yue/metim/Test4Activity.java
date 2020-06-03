@@ -16,7 +16,7 @@ public class Test4Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_test4);
-
+        mBinding.inputlayout.init(this);
 
     }
 }
