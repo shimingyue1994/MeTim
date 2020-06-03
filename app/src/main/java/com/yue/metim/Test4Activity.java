@@ -25,13 +25,17 @@ public class Test4Activity extends AppCompatActivity {
             @Override
             public void keyBoardShow(int height) {
                 Toast.makeText(Test4Activity.this, "键盘显示 高度" + height, Toast.LENGTH_SHORT).show();
-                SoftKeyBoardUtil.putHeight(height);
+                if (height > 0) {
+                    SoftKeyBoardUtil.putHeight(height);
+                }
             }
 
             @Override
             public void keyBoardHide(int height) {
                 Toast.makeText(Test4Activity.this, "键盘隐藏 高度" + height, Toast.LENGTH_SHORT).show();
-                SoftKeyBoardUtil.putHeight(height);
+                if (height > 0) {
+                    SoftKeyBoardUtil.putHeight(height);
+                }
             }
         });
         mBinding.inputlayout.init(this);
