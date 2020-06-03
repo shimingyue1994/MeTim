@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +23,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.yue.libtim.R;
 import com.yue.libtim.fragment.InputMoreFragment;
+import com.yue.libtim.utils.soft.SoftKeyBoardListener;
 import com.yue.libtim.utils.soft.SoftKeyBoardUtil;
 
 /**
@@ -86,6 +88,22 @@ public class InputLayout extends FrameLayout {
 
     public void init(AppCompatActivity activity) {
         this.activity = activity;
+        /*在登录的时候就应该把高度初始化好*/
+        SoftKeyBoardListener.setListener(activity, new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int height) {
+                if (height > 0 && SoftKeyBoardUtil.getSaveHeight() <= 0) {
+                    SoftKeyBoardUtil.putHeight(height);
+                }
+            }
+
+            @Override
+            public void keyBoardHide(int height) {
+                if (height > 0 && SoftKeyBoardUtil.getSaveHeight() <= 0) {
+                    SoftKeyBoardUtil.putHeight(height);
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -109,22 +127,11 @@ public class InputLayout extends FrameLayout {
         ivMore.setOnClickListener(v -> {
             if (inputState != InputState.INPUT_MORE) {
                 inputState = InputState.INPUT_MORE;
-
-                if (SoftKeyBoardUtil.getSaveHeight() > 0) {
-
-                } else {
-                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                    hideSoftInput();
-                    flMore.setVisibility(VISIBLE);
-                    showMore();
-                }
-
-
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                flMore.setVisibility(VISIBLE);
+                showMore();
+                hideSoftInput();
             } else {
-                if (SoftKeyBoardUtil.getSaveHeight() > 0) {
-
-                }
-
                 activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 inputState = InputState.INPUT_TEXT;
                 flMore.setVisibility(GONE);
