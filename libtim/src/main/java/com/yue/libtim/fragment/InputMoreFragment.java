@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.yue.libtim.R;
-import com.yue.libtim.utils.SoftKeyBoardUtil;
+import com.yue.libtim.utils.soft.SoftKeyBoardUtil;
 
 
 public class InputMoreFragment extends Fragment {
