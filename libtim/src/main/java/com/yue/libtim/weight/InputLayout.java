@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ public class InputLayout extends FrameLayout {
     private ImageView ivFace;
     private ImageView ivMore;
     private EditText etInput;
+    private LinearLayout llInput;
     private Button btnSend;
     private Button btnVoicePress;//按住说话
     private FrameLayout flMore;
@@ -64,6 +66,7 @@ public class InputLayout extends FrameLayout {
         ivFace = view.findViewById(R.id.iv_face);
         ivMore = view.findViewById(R.id.iv_more);
         etInput = view.findViewById(R.id.et_input);
+        llInput = view.findViewById(R.id.ll_input_text);
         btnSend = view.findViewById(R.id.btn_send);
         btnVoicePress = view.findViewById(R.id.btn_voice_press);
         flMore = view.findViewById(R.id.fl_more);
@@ -110,7 +113,9 @@ public class InputLayout extends FrameLayout {
                 flMore.setVisibility(VISIBLE);
                 showActionsGroup();
             } else {
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 inputState = InputState.INPUT_TEXT;
+                flMore.setVisibility(GONE);
                 showSoftInput();
             }
         });
