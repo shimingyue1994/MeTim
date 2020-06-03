@@ -11,6 +11,11 @@
         android:orientation="vertical"
         tools:context=".Test4Activity">
 
+        <EditText
+            android:id="@+id/et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"></EditText>
+
 
         <com.yue.libtim.weight.InputLayout
             android:id="@+id/inputlayout"
