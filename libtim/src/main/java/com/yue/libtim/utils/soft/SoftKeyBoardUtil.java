@@ -1,28 +1,22 @@
 package com.yue.libtim.utils.soft;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
-import android.os.IBinder;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
 import com.yue.libtim.TUIKit;
 import com.yue.libtim.TUIKitConstants;
-import com.yue.libtim.utils.ScreenUtil;
 
 
 public class SoftKeyBoardUtil {
 
     private static int softKeyBoardHeight;
     private static SharedPreferences preferences = TUIKit.getAppContext().getSharedPreferences(TUIKitConstants.UI_PARAMS, Context.MODE_PRIVATE);
-    private static InputMethodManager imm = (InputMethodManager) TUIKit.getAppContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 
 
+    public static void putHeight(int softHeight) {
+        preferences.edit().putInt(TUIKitConstants.SOFT_KEY_BOARD_HEIGHT, softHeight).apply();
+    }
 
     public static int getSoftKeyBoardHeight() {
         if (softKeyBoardHeight != 0)
