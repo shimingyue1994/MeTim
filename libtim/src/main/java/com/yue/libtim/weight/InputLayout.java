@@ -1,16 +1,11 @@
 package com.yue.libtim.weight;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -29,7 +24,6 @@ import androidx.fragment.app.FragmentManager;
 import com.yue.libtim.R;
 import com.yue.libtim.fragment.InputFaceFragment;
 import com.yue.libtim.fragment.InputMoreFragment;
-import com.yue.libtim.utils.DensityUtils;
 import com.yue.libtim.utils.soft.SoftKeyBoardListener;
 import com.yue.libtim.utils.soft.SoftKeyBoardUtil;
 
@@ -158,7 +152,6 @@ public class InputLayout extends FrameLayout {
         });
     }
 
-    private ValueAnimator animatorManager;
 
     private void btnFaceClick() {
         if (inputState != InputState.INPUT_FACE) {
@@ -178,35 +171,6 @@ public class InputLayout extends FrameLayout {
             etInput.requestFocus();
             inputState = InputState.INPUT_TEXT;
             showSoftInput();
-
-            /*+++++++++++++++++++++设置动画 由于face 会高出软键盘高度一节 以动画的形式下移+++++++++++++++++++++++++*/
-//            if (animatorManager == null) {
-//                animatorManager = new ValueAnimator();
-//                animatorManager.setDuration(100);
-//            }
-//            float end = DensityUtils.dp(getContext(), 35);
-//            animatorManager.setFloatValues(0, end);
-//            animatorManager.addListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    super.onAnimationEnd(animation);
-//                }
-//            });
-//            int sourceHeight = flMore.getHeight();
-//            Log.i("shimy", "高度" + sourceHeight);
-//            animatorManager.addUpdateListener((animation) -> {
-//                float value = (float) animation.getAnimatedValue();
-//                Log.i("shimy", "动画值" + value);
-////                flMore.setTranslationY(value);
-//                int newHeight = (int) (sourceHeight - value);
-//                ViewGroup.LayoutParams params = flMore.getLayoutParams();
-//                params.height = newHeight;
-//                flMore.setLayoutParams(params);
-//
-//            });
-//            animatorManager.start();
-            /*--------------------animator end------------------------------*/
-
                 /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局,
                 不加延迟会引起闪烁,因为键盘还没有弹起,但flMore隐藏了,输入框会猛地向下,加个延迟等输入框弹出到一定高度再执行*/
             postDelayed(() -> {
@@ -216,9 +180,6 @@ public class InputLayout extends FrameLayout {
                 flMore.setVisibility(GONE);
                 /*改为ADJUST_RESIZE 此时输入框并没有*/
                 activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-//                ViewGroup.LayoutParams params = flMore.getLayoutParams();
-//                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//                flMore.setLayoutParams(params);
             }, 100);
         }
     }
