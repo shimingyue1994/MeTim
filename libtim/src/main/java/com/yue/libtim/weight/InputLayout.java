@@ -109,6 +109,18 @@ public class InputLayout extends FrameLayout {
     }
 
     private void initView() {
+
+
+        /**
+         * 输入框触摸事件
+         */
+        etInput.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                return false;
+            }
+        });
         /*语音按钮*/
         ivVoice.setOnClickListener(v -> {
             if (inputState == InputState.INPUT_TEXT) {
@@ -141,9 +153,14 @@ public class InputLayout extends FrameLayout {
                 etInput.requestFocus();
                 inputState = InputState.INPUT_TEXT;
                 showSoftInput();
-                /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局*/
+                /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局,
+                不加延迟会引起闪烁,因为键盘还没有弹起,但flMore隐藏了,输入框会猛地向下,加个延迟等输入框弹出到一定高度再执行*/
                 postDelayed(() -> {
+                    /*此时还是ADJUST_NOTHING模式,flMore的gone 按道理来说应该会有个输入框向下隐藏的动作,就是会向下闪烁一下,
+                    但因为下一句代码执行太快, 此时输入法已显示完全了,所以会顺着输入框此时的位置再次往上顶起剩余的部分
+                    */
                     flMore.setVisibility(GONE);
+                    /*改为ADJUST_RESIZE 此时输入框并没有*/
                     activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 }, 200);
             }
