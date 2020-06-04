@@ -49,7 +49,7 @@ public class InputLayout extends FrameLayout {
     private ImageView ivFace;
     private ImageView ivMore;
     private EditText etInput;
-    private LinearLayout llInput;
+    private LinearLayout llInputText;
     private Button btnSend;
     private Button btnVoicePress;//按住说话
     private FrameLayout flMore;
@@ -70,7 +70,7 @@ public class InputLayout extends FrameLayout {
         ivFace = view.findViewById(R.id.iv_face);
         ivMore = view.findViewById(R.id.iv_more);
         etInput = view.findViewById(R.id.et_input);
-        llInput = view.findViewById(R.id.ll_input_text);
+        llInputText = view.findViewById(R.id.ll_input_text);
         btnSend = view.findViewById(R.id.btn_send);
         btnVoicePress = view.findViewById(R.id.btn_voice_press);
         flMore = view.findViewById(R.id.fl_more);
@@ -128,6 +128,8 @@ public class InputLayout extends FrameLayout {
         });
         /*语音按钮*/
         ivVoice.setOnClickListener(v -> {
+
+            btnVoiceClick();
             if (inputState == InputState.INPUT_TEXT) {
 
             } else if (inputState == InputState.INPUT_VOICE) {
@@ -152,7 +154,27 @@ public class InputLayout extends FrameLayout {
         });
     }
 
+    /**
+     * 语音点击
+     */
+    private void btnVoiceClick() {
+        if (inputState != InputState.INPUT_VOICE) {
+            inputState = InputState.INPUT_VOICE;
+            ivVoice.setImageResource(R.drawable.ic_input_soft);
+            llInputText.setVisibility(GONE);
+            btnVoicePress.setVisibility(VISIBLE);
+        } else {
+            inputState = InputState.INPUT_TEXT;
+            ivVoice.setImageResource(R.drawable.ic_input_voice);
+            llInputText.setVisibility(VISIBLE);
+            btnVoicePress.setVisibility(GONE);
+        }
+    }
 
+
+    /**
+     * 表情点击
+     */
     private void btnFaceClick() {
         if (inputState != InputState.INPUT_FACE) {
             inputState = InputState.INPUT_FACE;
