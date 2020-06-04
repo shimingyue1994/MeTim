@@ -159,11 +159,18 @@ public class InputLayout extends FrameLayout {
      */
     private void btnVoiceClick() {
         if (inputState != InputState.INPUT_VOICE) {
+            etInput.clearFocus();
+            flMore.setVisibility(GONE);
+            hideSoftInput();
+
+
             inputState = InputState.INPUT_VOICE;
             ivVoice.setImageResource(R.drawable.ic_input_soft);
             llInputText.setVisibility(GONE);
             btnVoicePress.setVisibility(VISIBLE);
         } else {
+            showSoftInput();
+
             inputState = InputState.INPUT_TEXT;
             ivVoice.setImageResource(R.drawable.ic_input_voice);
             llInputText.setVisibility(VISIBLE);
@@ -177,6 +184,11 @@ public class InputLayout extends FrameLayout {
      */
     private void btnFaceClick() {
         if (inputState != InputState.INPUT_FACE) {
+            ivVoice.setImageResource(R.drawable.ic_input_voice);
+            llInputText.setVisibility(VISIBLE);
+            btnVoicePress.setVisibility(GONE);
+
+
             inputState = InputState.INPUT_FACE;
             /*清除输入框焦点 清不清都不影响*/
             etInput.clearFocus();
@@ -211,6 +223,11 @@ public class InputLayout extends FrameLayout {
      */
     private void btnMoreClick() {
         if (inputState != InputState.INPUT_MORE) {
+            ivVoice.setImageResource(R.drawable.ic_input_voice);
+            llInputText.setVisibility(VISIBLE);
+            btnVoicePress.setVisibility(GONE);
+
+
             inputState = InputState.INPUT_MORE;
             /*清除输入框焦点 清不清都不影响*/
             etInput.clearFocus();
