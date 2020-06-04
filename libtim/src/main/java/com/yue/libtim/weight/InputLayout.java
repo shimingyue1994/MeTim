@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.yue.libtim.R;
+import com.yue.libtim.fragment.InputFaceFragment;
 import com.yue.libtim.fragment.InputMoreFragment;
 import com.yue.libtim.utils.soft.SoftKeyBoardListener;
 import com.yue.libtim.utils.soft.SoftKeyBoardUtil;
@@ -139,38 +140,11 @@ public class InputLayout extends FrameLayout {
         });
         /*表情按钮*/
         ivFace.setOnClickListener(v -> {
-
+            btnFaceClick();
         });
         /*更多操作的按钮*/
         ivMore.setOnClickListener(v -> {
-            if (inputState != InputState.INPUT_MORE) {
-                inputState = InputState.INPUT_MORE;
-                /*清除输入框焦点 清不清都不影响*/
-                etInput.clearFocus();
-                showMore();
-                /*做个延迟,等待fragment高度测量好,否则会有闪烁*/
-                postDelayed(() -> {
-                    /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
-                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                    flMore.setVisibility(VISIBLE);
-                    hideSoftInput();
-                }, 10);
-            } else {
-                /*获取输入框焦点,使得showSoftInput 弹出有效*/
-                etInput.requestFocus();
-                inputState = InputState.INPUT_TEXT;
-                showSoftInput();
-                /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局,
-                不加延迟会引起闪烁,因为键盘还没有弹起,但flMore隐藏了,输入框会猛地向下,加个延迟等输入框弹出到一定高度再执行*/
-                postDelayed(() -> {
-                    /*此时还是ADJUST_NOTHING模式,flMore的gone 按道理来说应该会有个输入框向下隐藏的动作,就是会向下闪烁一下,
-                    但因为下一句代码执行太快, 此时输入法已显示完全了,所以会顺着输入框此时的位置再次往上顶起剩余的部分
-                    */
-                    flMore.setVisibility(GONE);
-                    /*改为ADJUST_RESIZE 此时输入框并没有*/
-                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                }, 100);
-            }
+            btnMoreClick();
         });
         /*发送按钮*/
         btnSend.setOnClickListener(v -> {
@@ -178,17 +152,96 @@ public class InputLayout extends FrameLayout {
         });
     }
 
+
+    private void btnFaceClick() {
+        if (inputState != InputState.INPUT_FACE) {
+            inputState = InputState.INPUT_FACE;
+            /*清除输入框焦点 清不清都不影响*/
+            etInput.clearFocus();
+            showFaceOption();
+            /*做个延迟,等待showMore fragment高度测量好,否则会有闪烁*/
+            postDelayed(() -> {
+                /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                flMore.setVisibility(VISIBLE);
+                hideSoftInput();
+            }, 10);
+        } else {
+            /*获取输入框焦点,使得showSoftInput 弹出有效*/
+            etInput.requestFocus();
+            inputState = InputState.INPUT_TEXT;
+            showSoftInput();
+                /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局,
+                不加延迟会引起闪烁,因为键盘还没有弹起,但flMore隐藏了,输入框会猛地向下,加个延迟等输入框弹出到一定高度再执行*/
+            postDelayed(() -> {
+                    /*此时还是ADJUST_NOTHING模式,flMore的gone 按道理来说应该会有个输入框向下隐藏的动作,就是会向下闪烁一下,
+                    但因为下一句代码执行太快, 此时输入法已显示完全了,所以会顺着输入框此时的位置再次往上顶起剩余的部分
+                    */
+                flMore.setVisibility(GONE);
+                /*改为ADJUST_RESIZE 此时输入框并没有*/
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            }, 100);
+        }
+    }
+
+    /**
+     * 更多按钮的操作
+     */
+    private void btnMoreClick() {
+        if (inputState != InputState.INPUT_MORE) {
+            inputState = InputState.INPUT_MORE;
+            /*清除输入框焦点 清不清都不影响*/
+            etInput.clearFocus();
+            showMoreOption();
+            /*做个延迟,等待showMore fragment高度测量好,否则会有闪烁*/
+            postDelayed(() -> {
+                /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                flMore.setVisibility(VISIBLE);
+                hideSoftInput();
+            }, 10);
+        } else {
+            /*获取输入框焦点,使得showSoftInput 弹出有效*/
+            etInput.requestFocus();
+            inputState = InputState.INPUT_TEXT;
+            showSoftInput();
+                /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局,
+                不加延迟会引起闪烁,因为键盘还没有弹起,但flMore隐藏了,输入框会猛地向下,加个延迟等输入框弹出到一定高度再执行*/
+            postDelayed(() -> {
+                    /*此时还是ADJUST_NOTHING模式,flMore的gone 按道理来说应该会有个输入框向下隐藏的动作,就是会向下闪烁一下,
+                    但因为下一句代码执行太快, 此时输入法已显示完全了,所以会顺着输入框此时的位置再次往上顶起剩余的部分
+                    */
+                flMore.setVisibility(GONE);
+                /*改为ADJUST_RESIZE 此时输入框并没有*/
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            }, 100);
+        }
+    }
+
     InputMoreFragment inputMoreFragment;
 
     /**
      * 显示更多的布局
      */
-    private void showMore() {
+    private void showMoreOption() {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         if (inputMoreFragment == null)
             inputMoreFragment = new InputMoreFragment();
         fragmentManager.beginTransaction().replace(R.id.fl_more, inputMoreFragment).commitAllowingStateLoss();
     }
+
+    InputFaceFragment inputFaceFragment;
+
+    /**
+     * 显示更多的布局
+     */
+    private void showFaceOption() {
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        if (inputFaceFragment == null)
+            inputFaceFragment = new InputFaceFragment();
+        fragmentManager.beginTransaction().replace(R.id.fl_more, inputFaceFragment).commitAllowingStateLoss();
+    }
+
 
     private void initVoicePress() {
         btnVoicePress.setOnTouchListener((view, motionEvent) -> {
