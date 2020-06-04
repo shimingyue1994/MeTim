@@ -33,7 +33,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Test4Activity"></activity>
+            android:name=".Test4Activity"
+            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
         <activity android:name=".Test3Activity" />
         <activity android:name=".Test2Activity" />
         <activity android:name=".LoginActivity" />

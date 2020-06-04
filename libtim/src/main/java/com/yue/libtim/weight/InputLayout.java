@@ -84,6 +84,7 @@ public class InputLayout extends FrameLayout {
 //        btnVoicePress.setVisibility(VISIBLE);
         initView();
         initVoicePress();
+
     }
 
     public void init(AppCompatActivity activity) {
@@ -104,6 +105,7 @@ public class InputLayout extends FrameLayout {
                 }
             }
         });
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
     private void initView() {
@@ -128,14 +130,17 @@ public class InputLayout extends FrameLayout {
             if (inputState != InputState.INPUT_MORE) {
                 inputState = InputState.INPUT_MORE;
                 activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                hideSoftInput();
                 flMore.setVisibility(VISIBLE);
                 showMore();
-                hideSoftInput();
             } else {
-                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                etInput.requestFocus();
                 inputState = InputState.INPUT_TEXT;
-                flMore.setVisibility(GONE);
                 showSoftInput();
+                postDelayed(() -> {
+                    flMore.setVisibility(GONE);
+                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                }, 200);
             }
         });
         /*发送按钮*/
@@ -181,24 +186,15 @@ public class InputLayout extends FrameLayout {
      * 显示软键盘布局
      */
     private void showSoftInput() {
+        etInput.requestFocus();
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(etInput, 0);
-        postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-//                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            }
-        }, 200);
-
-
     }
 
     /**
      * 隐藏软键盘
      */
     public void hideSoftInput() {
-//        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0);
         etInput.clearFocus();
