@@ -122,7 +122,7 @@ public class InputLayout extends FrameLayout {
                 postDelayed(() -> {
                     flMore.setVisibility(GONE);
                     activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                }, 100);
+                }, 150);
                 return false;
             }
         });
@@ -180,7 +180,7 @@ public class InputLayout extends FrameLayout {
                 flMore.setVisibility(GONE);
                 /*改为ADJUST_RESIZE 此时输入框并没有*/
                 activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            }, 100);
+            }, 150);
         }
     }
 
@@ -214,7 +214,7 @@ public class InputLayout extends FrameLayout {
                 flMore.setVisibility(GONE);
                 /*改为ADJUST_RESIZE 此时输入框并没有*/
                 activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            }, 100);
+            }, 150);
         }
     }
 
