@@ -105,7 +105,7 @@ public class InputLayout extends FrameLayout {
                 }
             }
         });
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
     private void initView() {
@@ -129,14 +129,19 @@ public class InputLayout extends FrameLayout {
         ivMore.setOnClickListener(v -> {
             if (inputState != InputState.INPUT_MORE) {
                 inputState = InputState.INPUT_MORE;
+                /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
                 activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 hideSoftInput();
+                /*清除输入框焦点 清不清都不影响*/
+                etInput.clearFocus();
                 flMore.setVisibility(VISIBLE);
                 showMore();
             } else {
+                /*获取输入框焦点,使得showSoftInput 弹出有效*/
                 etInput.requestFocus();
                 inputState = InputState.INPUT_TEXT;
                 showSoftInput();
+                /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局*/
                 postDelayed(() -> {
                     flMore.setVisibility(GONE);
                     activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -197,7 +202,6 @@ public class InputLayout extends FrameLayout {
     public void hideSoftInput() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0);
-        etInput.clearFocus();
     }
 
     public void setInputText(String text) {
