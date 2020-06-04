@@ -1,5 +1,8 @@
 package com.yue.libtim.weight;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -152,6 +155,7 @@ public class InputLayout extends FrameLayout {
         });
     }
 
+    private ValueAnimator animatorManager;
 
     private void btnFaceClick() {
         if (inputState != InputState.INPUT_FACE) {
@@ -171,6 +175,26 @@ public class InputLayout extends FrameLayout {
             etInput.requestFocus();
             inputState = InputState.INPUT_TEXT;
             showSoftInput();
+
+            /*设置动画 由于face 会高出软键盘高度一节 以动画的形式下移*/
+            if (animatorManager == null) {
+                animatorManager = new ValueAnimator();
+                animatorManager.setDuration(500);
+            }
+
+            animatorManager.setFloatValues(10, 20);
+            animatorManager.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                }
+            });
+            animatorManager.addUpdateListener((animation) -> {
+            });
+            animatorManager.start();
+
+            /*--------------------animator end------------------------------*/
+
                 /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局,
                 不加延迟会引起闪烁,因为键盘还没有弹起,但flMore隐藏了,输入框会猛地向下,加个延迟等输入框弹出到一定高度再执行*/
             postDelayed(() -> {
