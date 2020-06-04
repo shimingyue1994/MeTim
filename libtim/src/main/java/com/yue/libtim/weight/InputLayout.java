@@ -117,7 +117,11 @@ public class InputLayout extends FrameLayout {
         etInput.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-
+                inputState = InputState.INPUT_TEXT;
+                postDelayed(() -> {
+                    flMore.setVisibility(GONE);
+                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                }, 200);
                 return false;
             }
         });
@@ -141,13 +145,18 @@ public class InputLayout extends FrameLayout {
         ivMore.setOnClickListener(v -> {
             if (inputState != InputState.INPUT_MORE) {
                 inputState = InputState.INPUT_MORE;
-                /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
-                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                hideSoftInput();
                 /*清除输入框焦点 清不清都不影响*/
                 etInput.clearFocus();
-                flMore.setVisibility(VISIBLE);
                 showMore();
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
+                        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                        flMore.setVisibility(VISIBLE);
+                    }
+                }, 10);
+                hideSoftInput();
             } else {
                 /*获取输入框焦点,使得showSoftInput 弹出有效*/
                 etInput.requestFocus();
