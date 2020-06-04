@@ -23,7 +23,7 @@ public class SoftKeyBoardUtil {
 
     public static int getSaveHeight() {
         int height = preferences.getInt(TUIKitConstants.SOFT_KEY_BOARD_HEIGHT, 0);
-        return height-40;
+        return height;
     }
 
     public static int getSoftKeyBoardHeight() {
@@ -34,7 +34,7 @@ public class SoftKeyBoardUtil {
             int height = getScreenSize()[1];
             return height * 2 / 5;
         }
-        return softKeyBoardHeight-40;
+        return softKeyBoardHeight;
     }
 
     public static int[] getScreenSize() {
