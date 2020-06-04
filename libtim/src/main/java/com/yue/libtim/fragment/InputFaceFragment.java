@@ -40,7 +40,7 @@ public class InputFaceFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_input_face, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_face);
         ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
-        params.height = SoftKeyBoardUtil.getSoftKeyBoardHeight()+100;
+        params.height = SoftKeyBoardUtil.getSoftKeyBoardHeight();
         recyclerView.setLayoutParams(params);
         return view;
     }
