@@ -121,7 +121,7 @@ public class InputLayout extends FrameLayout {
                 postDelayed(() -> {
                     flMore.setVisibility(GONE);
                     activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                }, 200);
+                }, 100);
                 return false;
             }
         });
@@ -148,15 +148,13 @@ public class InputLayout extends FrameLayout {
                 /*清除输入框焦点 清不清都不影响*/
                 etInput.clearFocus();
                 showMore();
-                postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
-                        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                        flMore.setVisibility(VISIBLE);
-                    }
+                /*做个延迟,等待fragment高度测量好,否则会有闪烁*/
+                postDelayed(() -> {
+                    /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
+                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                    flMore.setVisibility(VISIBLE);
+                    hideSoftInput();
                 }, 10);
-                hideSoftInput();
             } else {
                 /*获取输入框焦点,使得showSoftInput 弹出有效*/
                 etInput.requestFocus();
@@ -171,7 +169,7 @@ public class InputLayout extends FrameLayout {
                     flMore.setVisibility(GONE);
                     /*改为ADJUST_RESIZE 此时输入框并没有*/
                     activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                }, 200);
+                }, 100);
             }
         });
         /*发送按钮*/
