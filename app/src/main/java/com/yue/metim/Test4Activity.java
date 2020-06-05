@@ -11,6 +11,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.yue.libtim.fragment.InputFaceFragment;
+import com.yue.libtim.fragment.InputMoreFragment;
 import com.yue.metim.databinding.ActivityTest4Binding;
 import com.yue.metim.databinding.ItemTestBinding;
 
@@ -28,7 +30,9 @@ public class Test4Activity extends AppCompatActivity {
         initRecycler();
 
         mBinding.inputlayout.init(this);
-
+        mBinding.inputlayout.setInputFaceFragment(new InputFaceFragment());
+        mBinding.inputlayout.setInputMoreFragment(new InputMoreFragment());
+        mBinding.inputlayout.enableFace(false);
     }
 
 

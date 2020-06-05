@@ -1,8 +1,11 @@
 package com.yue.libtim.weight;
 
 import android.content.Context;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,13 +22,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.yue.libtim.R;
+import com.yue.libtim.TUIKitConstants;
 import com.yue.libtim.fragment.InputFaceFragment;
 import com.yue.libtim.fragment.InputMoreFragment;
+import com.yue.libtim.utils.AudioPlayer;
 import com.yue.libtim.utils.soft.SoftKeyBoardListener;
 import com.yue.libtim.utils.soft.SoftKeyBoardUtil;
+
+import java.io.File;
 
 /**
  * @author shimy
@@ -81,8 +89,6 @@ public class InputLayout extends FrameLayout {
             btnSend.setVisibility(GONE);
             ivMore.setVisibility(VISIBLE);
         }
-//        etInput.setVisibility(GONE);
-//        btnVoicePress.setVisibility(VISIBLE);
         initView();
         initVoicePress();
 
@@ -126,19 +132,32 @@ public class InputLayout extends FrameLayout {
                 return false;
             }
         });
-        /*语音按钮*/
-        ivVoice.setOnClickListener(v -> {
 
-            btnVoiceClick();
-            if (inputState == InputState.INPUT_TEXT) {
-
-            } else if (inputState == InputState.INPUT_VOICE) {
-
-            } else if (inputState == InputState.INPUT_MORE) {
-
-            } else if (inputState == InputState.INPUT_FACE) {
+        etInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (TextUtils.isEmpty(s.toString())) {
+                    btnSend.setVisibility(GONE);
+                    ivMore.setVisibility(VISIBLE);
+                } else {
+                    btnSend.setVisibility(VISIBLE);
+                    ivMore.setVisibility(GONE);
+                }
+            }
+        });
+        /*语音按钮*/
+        ivVoice.setOnClickListener(v -> {
+            btnVoiceClick();
         });
         /*表情按钮*/
         ivFace.setOnClickListener(v -> {
@@ -150,7 +169,7 @@ public class InputLayout extends FrameLayout {
         });
         /*发送按钮*/
         btnSend.setOnClickListener(v -> {
-
+            mInputListener.sendText(etInput.getText().toString());
         });
     }
 
@@ -257,44 +276,109 @@ public class InputLayout extends FrameLayout {
         }
     }
 
-    InputMoreFragment inputMoreFragment;
+    Fragment inputMoreFragment;
 
     /**
      * 显示更多的布局
      */
     private void showMoreOption() {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        if (inputMoreFragment == null)
-            inputMoreFragment = new InputMoreFragment();
-        fragmentManager.beginTransaction().replace(R.id.fl_more, inputMoreFragment).commitAllowingStateLoss();
+        if (inputMoreFragment != null) {
+//            inputMoreFragment = new InputMoreFragment();
+            fragmentManager.beginTransaction().replace(R.id.fl_more, inputMoreFragment).commitAllowingStateLoss();
+        }
     }
 
-    InputFaceFragment inputFaceFragment;
+    Fragment inputFaceFragment;
 
     /**
      * 显示更多的布局
      */
     private void showFaceOption() {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        if (inputFaceFragment == null)
-            inputFaceFragment = new InputFaceFragment();
-        fragmentManager.beginTransaction().replace(R.id.fl_more, inputFaceFragment).commitAllowingStateLoss();
+        if (inputFaceFragment != null) {
+//            inputFaceFragment = new InputFaceFragment();
+            fragmentManager.beginTransaction().replace(R.id.fl_more, inputFaceFragment).commitAllowingStateLoss();
+        }
     }
 
+    /*设置更多操作*/
+    public void setInputMoreFragment(Fragment inputMoreFragment) {
+        this.inputMoreFragment = inputMoreFragment;
+    }
+
+    /*设置表情fragment*/
+    public void setInputFaceFragment(Fragment inputFaceFragment) {
+        this.inputFaceFragment = inputFaceFragment;
+    }
+
+    /**
+     * 语音按钮的开关 默认开
+     *
+     * @param enable true:开 false:关
+     */
+    public void enableVoice(boolean enable) {
+        if (enable) {
+            ivVoice.setVisibility(VISIBLE);
+        } else {
+            ivVoice.setVisibility(GONE);
+        }
+    }
+
+    /**
+     * 更多按钮开关 默认开
+     * 当enable参数设置为true时 请调用{@link InputLayout#setInputMoreFragment} 添加更多fragment
+     *
+     * @param enable true:开 false:关
+     */
+    public void enableMore(boolean enable) {
+        if (enable) {
+            ivMore.setVisibility(VISIBLE);
+        } else {
+            ivMore.setVisibility(GONE);
+            btnSend.setVisibility(VISIBLE);
+        }
+    }
+
+    /**
+     * 表情按钮开关
+     * 当enable参数设置为true时 请调用{@link InputLayout#setInputFaceFragment} 添加表情fragment
+     *
+     * @param enable true:开 false:关
+     */
+    public void enableFace(boolean enable) {
+        if (enable) {
+            ivFace.setVisibility(VISIBLE);
+        } else {
+            ivFace.setVisibility(GONE);
+        }
+    }
 
     private void initVoicePress() {
         btnVoicePress.setOnTouchListener((view, motionEvent) -> {
 
             switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_DOWN: {
                     btnVoicePress.setText("松开结束");
-                    break;
+                    File dir = new File(TUIKitConstants.MESSAGE_RECORD_DIR);
+                    if (!dir.exists())
+                        dir.mkdirs();
+                    AudioPlayer.getInstance().startRecord(new AudioPlayer.Callback() {
+                        @Override
+                        public void onCompletion(Boolean success) {
+                            String audioPath = AudioPlayer.getInstance().getPath();
+                            mInputListener.sendVoice(audioPath);
+                        }
+                    });
+                }
+                break;
                 case MotionEvent.ACTION_MOVE:
                     btnVoicePress.setText("松开结束");
                     break;
                 case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
                     btnVoicePress.setText("按住说话");
+                    AudioPlayer.getInstance().stopRecord();
                     break;
                 default:
                     break;
@@ -324,5 +408,44 @@ public class InputLayout extends FrameLayout {
         etInput.setText(text);
         btnSend.setVisibility(VISIBLE);
         ivMore.setVisibility(GONE);
+    }
+
+    private InputListener mInputListener = new InputListener() {
+        @Override
+        public void sendText(String text) {
+
+        }
+
+        @Override
+        public void sendVoice(String path) {
+
+        }
+    };
+
+    public void setInputListener(InputListener inputListener) {
+        this.mInputListener = mInputListener;
+    }
+
+    public interface InputListener {
+        /*文本消息*/
+        void sendText(String text);
+
+        /*语音消息*/
+        void sendVoice(String path);
+    }
+
+
+    /**
+     * 点击返回按钮时调用，如果展示更多就隐藏更多 ，而不是返回上一页activity
+     *
+     * @return 返回true 说明隐藏了更多面板，返回false 可以处理自己的onBackPress里的事件
+     */
+    public boolean hideMore() {
+        inputState = InputState.INPUT_TEXT;
+        if (inputState == InputState.INPUT_MORE || inputState == InputState.INPUT_FACE) {
+            flMore.setVisibility(GONE);
+            return true;
+        }
+        return false;
     }
 }
