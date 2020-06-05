@@ -69,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        mBinding.btnEnd.setOnClickListener(v -> {
+            Intent intent = new Intent(this, Test5Activity.class);
+            startActivity(intent);
+        });
+
     }
 
 

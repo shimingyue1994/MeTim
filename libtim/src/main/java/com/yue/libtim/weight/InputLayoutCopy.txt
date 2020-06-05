@@ -85,6 +85,12 @@ public class InputLayout extends FrameLayout {
             btnSend.setVisibility(GONE);
             ivMore.setVisibility(VISIBLE);
         }
+        ivMore.setVisibility(GONE);
+        btnSend.setVisibility(VISIBLE);
+
+        ivFace.setVisibility(GONE);
+        ivVoice.setVisibility(GONE);
+
         initView();
         initVoicePress();
 
@@ -170,6 +176,7 @@ public class InputLayout extends FrameLayout {
         /*发送按钮*/
         btnSend.setOnClickListener(v -> {
             mInputSendListener.sendText(etInput.getText().toString());
+            etInput.setText("");
         });
     }
 
@@ -204,6 +211,7 @@ public class InputLayout extends FrameLayout {
     private void btnFaceClick() {
         if (inputState != InputState.INPUT_FACE) {
             ivVoice.setImageResource(R.drawable.ic_input_voice);
+            ivFace.setImageResource(R.drawable.ic_input_soft);
             llInputText.setVisibility(VISIBLE);
             btnVoicePress.setVisibility(GONE);
 
@@ -221,6 +229,8 @@ public class InputLayout extends FrameLayout {
                 hideSoftInput();
             }, 10);
         } else {
+            ivFace.setImageResource(R.drawable.ic_input_face);
+
             /*获取输入框焦点,使得showSoftInput 弹出有效*/
             etInput.requestFocus();
             inputState = InputState.INPUT_TEXT;
@@ -244,6 +254,7 @@ public class InputLayout extends FrameLayout {
     private void btnMoreClick() {
         if (inputState != InputState.INPUT_MORE) {
             ivVoice.setImageResource(R.drawable.ic_input_voice);
+            ivFace.setImageResource(R.drawable.ic_input_face);
             llInputText.setVisibility(VISIBLE);
             btnVoicePress.setVisibility(GONE);
 
@@ -316,7 +327,7 @@ public class InputLayout extends FrameLayout {
     }
 
     /**
-     * 语音按钮的开关 默认开
+     * 语音按钮的开关 默认关
      *
      * @param enable true:开 false:关
      */
@@ -329,7 +340,7 @@ public class InputLayout extends FrameLayout {
     }
 
     /**
-     * 更多按钮开关 默认开
+     * 更多按钮开关 默认关
      * 当enable参数设置为true时 请调用{@link InputLayout#setInputMoreFragment} 添加更多fragment
      *
      * @param enable true:开 false:关
@@ -337,6 +348,7 @@ public class InputLayout extends FrameLayout {
     public void enableMore(boolean enable) {
         if (enable) {
             ivMore.setVisibility(VISIBLE);
+            btnSend.setVisibility(GONE);
         } else {
             ivMore.setVisibility(GONE);
             btnSend.setVisibility(VISIBLE);

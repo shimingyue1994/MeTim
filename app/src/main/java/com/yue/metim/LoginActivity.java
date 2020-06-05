@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess() {
                 mBinding.progress.setVisibility(View.GONE);
                 mBinding.tvStatus.setText("登录成功");
-                Intent intent = new Intent(LoginActivity.this, Test01Activity.class);
+                Intent intent = new Intent(LoginActivity.this, Test5Activity.class);
                 if (User.userId02.equals(userId))
                     intent.putExtra("identify", User.userId01);
                 else

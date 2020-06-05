@@ -32,9 +32,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".Test5Activity"></activity>
         <activity
             android:name=".Test4Activity"
-            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity android:name=".Test3Activity" />
         <activity android:name=".Test2Activity" />
         <activity android:name=".LoginActivity" />
