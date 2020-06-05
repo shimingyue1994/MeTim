@@ -262,7 +262,7 @@ public class Test5Activity extends AppCompatActivity {
 //                    mAdapter.notifyItemChanged(position, mItems.size() - 1);
                     mBinding.recycler.scrollToPosition(mItems.size() - 1);
                 }
-            }, 1000);
+            }, 200);
 
 
             V2TIMManager.getMessageManager().sendMessage(timMessage, identify, "",
