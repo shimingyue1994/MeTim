@@ -371,6 +371,7 @@ public class InputLayout extends FrameLayout {
             switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     mStartRecordY = motionEvent.getY();
+                    mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_START);
                     btnVoicePress.setText("松开结束");
                     File dir = new File(TUIKitConstants.MESSAGE_RECORD_DIR);
                     if (!dir.exists())
@@ -380,25 +381,34 @@ public class InputLayout extends FrameLayout {
                         int duration = AudioPlayer.getInstance().getDuration();
                         if (!success || duration == 0) {
                             mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_FAILED);
+                            File file = new File(audioPath);
+                            if (file.exists())
+                                file.delete();
                             return;
                         }
+                        /*最后移动到取消的位置，不发送消息，标记为已取消*/
                         if (mAudioCancel) {
                             mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_CANCEL);
+                            File file = new File(audioPath);
+                            if (file.exists())
+                                file.delete();
                             return;
                         }
                         if (duration < 1000) {
                             mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_TOO_SHORT);
+                            File file = new File(audioPath);
+                            if (file.exists())
+                                file.delete();
                             return;
                         }
-                        mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_STOP);
-
+                        mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_COMPLETE);
                         mInputSendListener.sendVoice(audioPath, duration);
                     });
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (motionEvent.getY() - mStartRecordY < -100) {
                         mAudioCancel = true;
-                        mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_CANCEL);
+                        mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_CANCELING);
                     } else {
                         if (mAudioCancel) {
                             mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_START);

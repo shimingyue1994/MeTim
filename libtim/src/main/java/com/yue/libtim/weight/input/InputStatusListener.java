@@ -8,9 +8,11 @@ package com.yue.libtim.weight.input;
 public interface InputStatusListener {
     int RECORD_START = 1;
     int RECORD_STOP = 2;
-    int RECORD_CANCEL = 3;
-    int RECORD_TOO_SHORT = 4;
-    int RECORD_FAILED = 5;
+    int RECORD_CANCELING = 3;//取消中 手指移动并未松开
+    int RECORD_CANCEL = 4;
+    int RECORD_TOO_SHORT = 5;
+    int RECORD_FAILED = 6;
+    int RECORD_COMPLETE = 7;
 
     /**
      * 输入控件发生改变 主要是输入法 表情 更多布局的弹出

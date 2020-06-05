@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.yue.libtim.fragment.InputFaceFragment;
 import com.yue.libtim.fragment.InputMoreFragment;
+import com.yue.libtim.weight.input.InputStatusListener;
 import com.yue.metim.databinding.ActivityTest4Binding;
 import com.yue.metim.databinding.ItemTestBinding;
 
@@ -33,12 +36,58 @@ public class Test4Activity extends AppCompatActivity {
         mBinding.inputlayout.setInputFaceFragment(new InputFaceFragment());
         mBinding.inputlayout.setInputMoreFragment(new InputMoreFragment());
         mBinding.inputlayout.enableFace(false);
+        mBinding.inputlayout.setInputStatusListener(new InputStatusListener() {
+            @Override
+            public void onInputAreaChanged(boolean open) {
+                /*延时，布局改变没那么快*/
+                mBinding.recycler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mBinding.recycler.scrollToPosition(list.size() - 1);
+                    }
+                }, 200);
+
+            }
+
+            @Override
+            public void onVoiceStatusChanged(int status) {
+                if (status == RECORD_CANCELING) {
+                    mBinding.tvVoiceTip.setVisibility(View.VISIBLE);
+                    mBinding.tvVoiceTip.setText("松开取消");
+                } else if (status == RECORD_CANCEL) {
+                    mBinding.tvVoiceTip.setVisibility(View.GONE);
+                    mBinding.tvVoiceTip.setText("");
+                    Toast.makeText(Test4Activity.this, "录音取消发送", Toast.LENGTH_SHORT).show();
+                } else if (status == RECORD_START) {
+                    mBinding.tvVoiceTip.setVisibility(View.VISIBLE);
+                    mBinding.tvVoiceTip.setText("录音中");
+                } else if (status == RECORD_STOP) {
+                    mBinding.tvVoiceTip.setVisibility(View.GONE);
+                    mBinding.tvVoiceTip.setText("");
+                    Toast.makeText(Test4Activity.this, "录音停止", Toast.LENGTH_SHORT).show();
+                } else if (status == RECORD_TOO_SHORT) {
+                    mBinding.tvVoiceTip.setVisibility(View.GONE);
+                    mBinding.tvVoiceTip.setText("");
+                    Toast.makeText(Test4Activity.this, "太短了", Toast.LENGTH_SHORT).show();
+                } else if (status == RECORD_FAILED) {
+                    mBinding.tvVoiceTip.setVisibility(View.GONE);
+                    mBinding.tvVoiceTip.setText("");
+                    Toast.makeText(Test4Activity.this, "录音失败", Toast.LENGTH_SHORT).show();
+                } else if (status == RECORD_COMPLETE) {
+                    mBinding.tvVoiceTip.setVisibility(View.GONE);
+                    mBinding.tvVoiceTip.setText("");
+                    Toast.makeText(Test4Activity.this, "录音完成", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 
+    private List<String> list;
+
     private void initRecycler() {
         mBinding.recycler.setLayoutManager(new LinearLayoutManager(this));
-        List<String> list = new ArrayList<>();
+        list = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
             list.add("标题   " + i);
         }
