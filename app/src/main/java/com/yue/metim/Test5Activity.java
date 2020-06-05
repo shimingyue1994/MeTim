@@ -253,12 +253,13 @@ public class Test5Activity extends AppCompatActivity {
             V2TIMImageElem imageElem = timMessage.getImageElem();
             ImageElemVO imageElemVO = new ImageElemVO(timMessage, imageElem);
             mItems.add(imageElemVO);
-            mAdapter.notifyDataSetChanged();
             int position = mItems.size() - 1;
+            mAdapter.notifyItemChanged(position, mItems.size() - 1);
+            mBinding.recycler.scrollToPosition(mItems.size() - 1);
             mBinding.recycler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    mAdapter.notifyItemChanged(position, mItems.size() - 1);
+//                    mAdapter.notifyItemChanged(position, mItems.size() - 1);
                     mBinding.recycler.scrollToPosition(mItems.size() - 1);
                 }
             }, 1000);
