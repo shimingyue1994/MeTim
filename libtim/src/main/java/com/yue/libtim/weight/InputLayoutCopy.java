@@ -1,0 +1,445 @@
+package com.yue.libtim.weight;
+
+import android.content.Context;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
+import com.yue.libtim.R;
+import com.yue.libtim.TUIKitConstants;
+import com.yue.libtim.utils.AudioPlayer;
+import com.yue.libtim.utils.soft.SoftKeyBoardListener;
+import com.yue.libtim.utils.soft.SoftKeyBoardUtil;
+
+import java.io.File;
+
+/**
+ * @author shimy
+ * @create 2020/6/2 14:47
+ * @desc 输入底部布局 保留副本
+ */
+public class InputLayoutCopy extends FrameLayout {
+
+
+    private enum InputState {
+        INPUT_VOICE,
+        INPUT_FACE,
+        INPUT_MORE,
+        INPUT_TEXT
+    }
+
+    /*当前的输入状态*/
+    private InputState inputState = InputState.INPUT_TEXT;
+
+    private ImageView ivVoice;
+    private ImageView ivFace;
+    private ImageView ivMore;
+    private EditText etInput;
+    private LinearLayout llInputText;
+    private Button btnSend;
+    private Button btnVoicePress;//按住说话
+    private FrameLayout flMore;
+    private AppCompatActivity activity;
+
+    public InputLayoutCopy(@NonNull Context context) {
+        this(context, null);
+    }
+
+    public InputLayoutCopy(@NonNull Context context, @Nullable AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public InputLayoutCopy(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        View view = View.inflate(context, R.layout.layout_input2, this);
+        ivVoice = view.findViewById(R.id.iv_voice);
+        ivFace = view.findViewById(R.id.iv_face);
+        ivMore = view.findViewById(R.id.iv_more);
+        etInput = view.findViewById(R.id.et_input);
+        llInputText = view.findViewById(R.id.ll_input_text);
+        btnSend = view.findViewById(R.id.btn_send);
+        btnVoicePress = view.findViewById(R.id.btn_voice_press);
+        flMore = view.findViewById(R.id.fl_more);
+        if (!TextUtils.isEmpty(etInput.getText().toString())) {
+            btnSend.setVisibility(VISIBLE);
+            ivMore.setVisibility(GONE);
+        } else {
+            btnSend.setVisibility(GONE);
+            ivMore.setVisibility(VISIBLE);
+        }
+        initView();
+        initVoicePress();
+
+    }
+
+    public void init(AppCompatActivity activity) {
+        this.activity = activity;
+        /*在登录的时候就应该把高度初始化好*/
+        SoftKeyBoardListener.setListener(activity, new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int height) {
+                if (height > 0 && SoftKeyBoardUtil.getSaveHeight() <= 0) {
+                    SoftKeyBoardUtil.putHeight(height);
+                }
+            }
+
+            @Override
+            public void keyBoardHide(int height) {
+                if (height > 0 && SoftKeyBoardUtil.getSaveHeight() <= 0) {
+                    SoftKeyBoardUtil.putHeight(height);
+                }
+            }
+        });
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+    }
+
+    private void initView() {
+
+
+        /**
+         * 输入框触摸事件
+         */
+        etInput.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                inputState = InputState.INPUT_TEXT;
+                postDelayed(() -> {
+                    flMore.setVisibility(GONE);
+                    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                }, 150);
+                return false;
+            }
+        });
+
+        etInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (TextUtils.isEmpty(s.toString())) {
+                    btnSend.setVisibility(GONE);
+                    ivMore.setVisibility(VISIBLE);
+                } else {
+                    btnSend.setVisibility(VISIBLE);
+                    ivMore.setVisibility(GONE);
+                }
+            }
+        });
+        /*语音按钮*/
+        ivVoice.setOnClickListener(v -> {
+            btnVoiceClick();
+        });
+        /*表情按钮*/
+        ivFace.setOnClickListener(v -> {
+            btnFaceClick();
+        });
+        /*更多操作的按钮*/
+        ivMore.setOnClickListener(v -> {
+            btnMoreClick();
+        });
+        /*发送按钮*/
+        btnSend.setOnClickListener(v -> {
+            mInputListener.sendText(etInput.getText().toString());
+        });
+    }
+
+    /**
+     * 语音点击
+     */
+    private void btnVoiceClick() {
+        if (inputState != InputState.INPUT_VOICE) {
+            etInput.clearFocus();
+            flMore.setVisibility(GONE);
+            hideSoftInput();
+
+
+            inputState = InputState.INPUT_VOICE;
+            ivVoice.setImageResource(R.drawable.ic_input_soft);
+            llInputText.setVisibility(GONE);
+            btnVoicePress.setVisibility(VISIBLE);
+        } else {
+            showSoftInput();
+
+            inputState = InputState.INPUT_TEXT;
+            ivVoice.setImageResource(R.drawable.ic_input_voice);
+            llInputText.setVisibility(VISIBLE);
+            btnVoicePress.setVisibility(GONE);
+        }
+    }
+
+
+    /**
+     * 表情点击
+     */
+    private void btnFaceClick() {
+        if (inputState != InputState.INPUT_FACE) {
+            ivVoice.setImageResource(R.drawable.ic_input_voice);
+            llInputText.setVisibility(VISIBLE);
+            btnVoicePress.setVisibility(GONE);
+
+
+            inputState = InputState.INPUT_FACE;
+            /*清除输入框焦点 清不清都不影响*/
+            etInput.clearFocus();
+            showFaceOption();
+            /*做个延迟,等待showMore fragment高度测量好,否则会有闪烁*/
+            postDelayed(() -> {
+                /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                flMore.setVisibility(VISIBLE);
+                hideSoftInput();
+            }, 10);
+        } else {
+            /*获取输入框焦点,使得showSoftInput 弹出有效*/
+            etInput.requestFocus();
+            inputState = InputState.INPUT_TEXT;
+            showSoftInput();
+                /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局,
+                不加延迟会引起闪烁,因为键盘还没有弹起,但flMore隐藏了,输入框会猛地向下,加个延迟等输入框弹出到一定高度再执行*/
+            postDelayed(() -> {
+                    /*此时还是ADJUST_NOTHING模式,flMore的gone 按道理来说应该会有个输入框向下隐藏的动作,就是会向下闪烁一下,
+                    但因为下一句代码执行太快, 此时输入法已显示完全了,所以会顺着输入框此时的位置再次往上顶起剩余的部分
+                    */
+                flMore.setVisibility(GONE);
+                /*改为ADJUST_RESIZE 此时输入框并没有*/
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            }, 150);
+        }
+    }
+
+    /**
+     * 更多按钮的操作
+     */
+    private void btnMoreClick() {
+        if (inputState != InputState.INPUT_MORE) {
+            ivVoice.setImageResource(R.drawable.ic_input_voice);
+            llInputText.setVisibility(VISIBLE);
+            btnVoicePress.setVisibility(GONE);
+
+
+            inputState = InputState.INPUT_MORE;
+            /*清除输入框焦点 清不清都不影响*/
+            etInput.clearFocus();
+            showMoreOption();
+            /*做个延迟,等待showMore fragment高度测量好,否则会有闪烁*/
+            postDelayed(() -> {
+                /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                flMore.setVisibility(VISIBLE);
+                hideSoftInput();
+            }, 10);
+        } else {
+            /*获取输入框焦点,使得showSoftInput 弹出有效*/
+            etInput.requestFocus();
+            inputState = InputState.INPUT_TEXT;
+            showSoftInput();
+                /*重要!!!!!--->>>> 延迟200毫秒设置为ADJUST_RESIZE模式(可以改变布局,顶起edittext),并隐藏更多布局,
+                不加延迟会引起闪烁,因为键盘还没有弹起,但flMore隐藏了,输入框会猛地向下,加个延迟等输入框弹出到一定高度再执行*/
+            postDelayed(() -> {
+                    /*此时还是ADJUST_NOTHING模式,flMore的gone 按道理来说应该会有个输入框向下隐藏的动作,就是会向下闪烁一下,
+                    但因为下一句代码执行太快, 此时输入法已显示完全了,所以会顺着输入框此时的位置再次往上顶起剩余的部分
+                    */
+                flMore.setVisibility(GONE);
+                /*改为ADJUST_RESIZE 此时输入框并没有*/
+                activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            }, 150);
+        }
+    }
+
+    Fragment inputMoreFragment;
+
+    /**
+     * 显示更多的布局
+     */
+    private void showMoreOption() {
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        if (inputMoreFragment != null) {
+//            inputMoreFragment = new InputMoreFragment();
+            fragmentManager.beginTransaction().replace(R.id.fl_more, inputMoreFragment).commitAllowingStateLoss();
+        }
+    }
+
+    Fragment inputFaceFragment;
+
+    /**
+     * 显示更多的布局
+     */
+    private void showFaceOption() {
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        if (inputFaceFragment != null) {
+//            inputFaceFragment = new InputFaceFragment();
+            fragmentManager.beginTransaction().replace(R.id.fl_more, inputFaceFragment).commitAllowingStateLoss();
+        }
+    }
+
+    /*设置更多操作*/
+    public void setInputMoreFragment(Fragment inputMoreFragment) {
+        this.inputMoreFragment = inputMoreFragment;
+    }
+
+    /*设置表情fragment*/
+    public void setInputFaceFragment(Fragment inputFaceFragment) {
+        this.inputFaceFragment = inputFaceFragment;
+    }
+
+    /**
+     * 语音按钮的开关 默认开
+     *
+     * @param enable true:开 false:关
+     */
+    public void enableVoice(boolean enable) {
+        if (enable) {
+            ivVoice.setVisibility(VISIBLE);
+        } else {
+            ivVoice.setVisibility(GONE);
+        }
+    }
+
+    /**
+     * 更多按钮开关 默认开
+     * 当enable参数设置为true时 请调用{@link InputLayoutCopy#setInputMoreFragment} 添加更多fragment
+     *
+     * @param enable true:开 false:关
+     */
+    public void enableMore(boolean enable) {
+        if (enable) {
+            ivMore.setVisibility(VISIBLE);
+        } else {
+            ivMore.setVisibility(GONE);
+            btnSend.setVisibility(VISIBLE);
+        }
+    }
+
+    /**
+     * 表情按钮开关
+     * 当enable参数设置为true时 请调用{@link InputLayoutCopy#setInputFaceFragment} 添加表情fragment
+     *
+     * @param enable true:开 false:关
+     */
+    public void enableFace(boolean enable) {
+        if (enable) {
+            ivFace.setVisibility(VISIBLE);
+        } else {
+            ivFace.setVisibility(GONE);
+        }
+    }
+
+    private void initVoicePress() {
+        btnVoicePress.setOnTouchListener((view, motionEvent) -> {
+
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    btnVoicePress.setText("松开结束");
+                    File dir = new File(TUIKitConstants.MESSAGE_RECORD_DIR);
+                    if (!dir.exists())
+                        dir.mkdirs();
+                    AudioPlayer.getInstance().startRecord(new AudioPlayer.Callback() {
+                        @Override
+                        public void onCompletion(Boolean success) {
+                            String audioPath = AudioPlayer.getInstance().getPath();
+                            mInputListener.sendVoice(audioPath);
+                        }
+                    });
+                }
+                break;
+                case MotionEvent.ACTION_MOVE:
+                    btnVoicePress.setText("松开结束");
+                    break;
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_UP:
+                    btnVoicePress.setText("按住说话");
+                    AudioPlayer.getInstance().stopRecord();
+                    break;
+                default:
+                    break;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * 显示软键盘布局
+     */
+    private void showSoftInput() {
+        etInput.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(etInput, 0);
+    }
+
+    /**
+     * 隐藏软键盘
+     */
+    public void hideSoftInput() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0);
+    }
+
+    public void setInputText(String text) {
+        etInput.setText(text);
+        btnSend.setVisibility(VISIBLE);
+        ivMore.setVisibility(GONE);
+    }
+
+    private InputListener mInputListener = new InputListener() {
+        @Override
+        public void sendText(String text) {
+
+        }
+
+        @Override
+        public void sendVoice(String path) {
+
+        }
+    };
+
+    public void setInputListener(InputListener inputListener) {
+        this.mInputListener = mInputListener;
+    }
+
+    public interface InputListener {
+        /*文本消息*/
+        void sendText(String text);
+
+        /*语音消息*/
+        void sendVoice(String path);
+    }
+
+
+    /**
+     * 点击返回按钮时调用，如果展示更多就隐藏更多 ，而不是返回上一页activity
+     *
+     * @return 返回true 说明隐藏了更多面板，返回false 可以处理自己的onBackPress里的事件
+     */
+    public boolean hideMore() {
+        inputState = InputState.INPUT_TEXT;
+        if (inputState == InputState.INPUT_MORE || inputState == InputState.INPUT_FACE) {
+            flMore.setVisibility(GONE);
+            return true;
+        }
+        return false;
+    }
+}
