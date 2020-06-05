@@ -241,68 +241,76 @@ public class ImageElemHolder extends MessageContentHolder {
 
 
     private void showImage(String path, final RecyclerView recyclerView) {
+        int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 100);
+        int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 260);
         Glide.with(ivImage.getContext())
                 .asBitmap()
                 .load(path)
-                .into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        int width = resource.getWidth();
-                        int height = resource.getHeight();
-                        int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 100);
-                        int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 260);
-
-                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
-                        FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-                        //计算缩放比例
-                        int scaleX = width / maxWidth;
-                        int scaleY = height / maxHeight;
-                        int scale = 1;
-                        if (scaleX >= scaleY && scaleX > 1) {
-                            scale = scaleX;
-                        }
-                        if (scaleY >= scaleX && scaleY > 1) {
-                            scale = scaleY;
-                        }
-
-                        if (width > maxWidth || height > maxHeight) {
-                            paramsMask.width = width / scale;
-                            params.width = width / scale;
-                            paramsMask.height = height / scale;
-                            params.height = height / scale;
-                        } else {
-                            paramsMask.width = width;
-                            params.width = width;
-                            paramsMask.height = height;
-                            params.height = height;
-                        }
-//                        if (width > maxWidth) {
-//                            paramsMask.width = maxWidth;
-//                            params.width = maxWidth;
+                .override(maxWidth, maxHeight)
+                .fitCenter()
+                .into(ivImage);
+//        Glide.with(ivImage.getContext())
+//                .asBitmap()
+//                .load(path)
+//                .into(new CustomTarget<Bitmap>() {
+//                    @Override
+//                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+//                        int width = resource.getWidth();
+//                        int height = resource.getHeight();
+//                        int maxWidth = (int) DensityUtils.dp(llMask.getContext(), 100);
+//                        int maxHeight = (int) DensityUtils.dp(llMask.getContext(), 260);
+//
+//                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) ivImage.getLayoutParams();
+//                        FrameLayout.LayoutParams paramsMask = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//
+//                        //计算缩放比例
+//                        int scaleX = width / maxWidth;
+//                        int scaleY = height / maxHeight;
+//                        int scale = 1;
+//                        if (scaleX >= scaleY && scaleX > 1) {
+//                            scale = scaleX;
+//                        }
+//                        if (scaleY >= scaleX && scaleY > 1) {
+//                            scale = scaleY;
+//                        }
+//
+//                        if (width > maxWidth || height > maxHeight) {
+//                            paramsMask.width = width / scale;
+//                            params.width = width / scale;
+//                            paramsMask.height = height / scale;
+//                            params.height = height / scale;
 //                        } else {
 //                            paramsMask.width = width;
 //                            params.width = width;
-//                        }
-//                        if (height > maxHeight) {
-//                            paramsMask.height = maxHeight;
-//                            params.height = maxHeight;
-//                        } else {
 //                            paramsMask.height = height;
 //                            params.height = height;
 //                        }
-                        llMask.setLayoutParams(paramsMask);
-                        ivImage.setLayoutParams(params);
-
-                        ivImage.setImageBitmap(resource);
-                        Log.i("shimyHolder", "holder又tm执行了");
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                    }
-                });
+////                        if (width > maxWidth) {
+////                            paramsMask.width = maxWidth;
+////                            params.width = maxWidth;
+////                        } else {
+////                            paramsMask.width = width;
+////                            params.width = width;
+////                        }
+////                        if (height > maxHeight) {
+////                            paramsMask.height = maxHeight;
+////                            params.height = maxHeight;
+////                        } else {
+////                            paramsMask.height = height;
+////                            params.height = height;
+////                        }
+//                        llMask.setLayoutParams(paramsMask);
+//                        ivImage.setLayoutParams(params);
+//
+//                        ivImage.setImageBitmap(resource);
+//                        Log.i("shimyHolder", "holder又tm执行了");
+//                    }
+//
+//                    @Override
+//                    public void onLoadCleared(@Nullable Drawable placeholder) {
+//
+//                    }
+//                });
 
     }
 
