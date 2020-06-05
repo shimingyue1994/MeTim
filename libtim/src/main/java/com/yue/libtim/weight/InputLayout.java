@@ -1,5 +1,6 @@
 package com.yue.libtim.weight;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -169,7 +170,7 @@ public class InputLayout extends FrameLayout {
         });
         /*发送按钮*/
         btnSend.setOnClickListener(v -> {
-            mInputListener.sendText(etInput.getText().toString());
+            mInputSendListener.sendText(etInput.getText().toString());
         });
     }
 
@@ -354,29 +355,56 @@ public class InputLayout extends FrameLayout {
         }
     }
 
+    private float mStartRecordY;
+    private boolean mAudioCancel;
+
+    @SuppressLint("ClickableViewAccessibility")
     private void initVoicePress() {
         btnVoicePress.setOnTouchListener((view, motionEvent) -> {
 
             switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
+                case MotionEvent.ACTION_DOWN:
+                    mStartRecordY = motionEvent.getY();
                     btnVoicePress.setText("松开结束");
                     File dir = new File(TUIKitConstants.MESSAGE_RECORD_DIR);
                     if (!dir.exists())
                         dir.mkdirs();
-                    AudioPlayer.getInstance().startRecord(new AudioPlayer.Callback() {
-                        @Override
-                        public void onCompletion(Boolean success) {
-                            String audioPath = AudioPlayer.getInstance().getPath();
-                            mInputListener.sendVoice(audioPath);
+                    AudioPlayer.getInstance().startRecord(success -> {
+                        String audioPath = AudioPlayer.getInstance().getPath();
+                        int duration = AudioPlayer.getInstance().getDuration();
+                        if (!success || duration == 0) {
+                            mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_FAILED);
+                            return;
                         }
+                        if (mAudioCancel) {
+                            mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_CANCEL);
+                            return;
+                        }
+                        if (duration < 1000) {
+                            mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_TOO_SHORT);
+                            return;
+                        }
+                        mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_STOP);
+
+                        mInputSendListener.sendVoice(audioPath, duration);
                     });
-                }
-                break;
+                    break;
                 case MotionEvent.ACTION_MOVE:
+                    if (motionEvent.getY() - mStartRecordY < -100) {
+                        mAudioCancel = true;
+                        mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_CANCEL);
+                    } else {
+                        if (mAudioCancel) {
+                            mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_START);
+                        }
+                        mAudioCancel = false;
+                    }
                     btnVoicePress.setText("松开结束");
                     break;
                 case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
+                    mAudioCancel = motionEvent.getY() - mStartRecordY < -100;
+                    mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_STOP);
                     btnVoicePress.setText("按住说话");
                     AudioPlayer.getInstance().stopRecord();
                     break;
@@ -410,28 +438,63 @@ public class InputLayout extends FrameLayout {
         ivMore.setVisibility(GONE);
     }
 
-    private InputListener mInputListener = new InputListener() {
+    private InputSendListener mInputSendListener = new InputSendListener() {
         @Override
         public void sendText(String text) {
 
         }
 
         @Override
-        public void sendVoice(String path) {
+        public void sendVoice(String path, int duration) {
 
         }
     };
 
-    public void setInputListener(InputListener inputListener) {
-        this.mInputListener = mInputListener;
+    public void setInputSendListener(InputSendListener inputSendListener) {
+        this.mInputSendListener = inputSendListener;
     }
 
-    public interface InputListener {
+    public interface InputSendListener {
+
         /*文本消息*/
         void sendText(String text);
 
         /*语音消息*/
-        void sendVoice(String path);
+        void sendVoice(String path, int duration);
+    }
+
+
+    private InputStatusListener mInputStatusListener = new InputStatusListener() {
+        @Override
+        public void onInputAreaChanged() {
+
+        }
+
+        @Override
+        public void onVoiceStatusChanged(int status) {
+
+        }
+    };
+
+    public void setInputStatusListener(InputStatusListener inputStatusListener) {
+        this.mInputStatusListener = inputStatusListener;
+    }
+
+    /**
+     * 输入状态发生改变  语音 控件
+     */
+    public interface InputStatusListener {
+        int RECORD_START = 1;
+        int RECORD_STOP = 2;
+        int RECORD_CANCEL = 3;
+        int RECORD_TOO_SHORT = 4;
+        int RECORD_FAILED = 5;
+
+        /*输入控件发生改变 主要是输入法 表情 更多的弹出*/
+        void onInputAreaChanged();
+
+        /*语音状态发生改变*/
+        void onVoiceStatusChanged(int status);
     }
 
 
