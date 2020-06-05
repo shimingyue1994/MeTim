@@ -12,7 +12,7 @@
         tools:context=".Test4Activity">
 
 
-        <com.yue.libtim.weight.InputLayout
+        <com.yue.libtim.weight.input.InputLayout
             android:id="@+id/inputlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
