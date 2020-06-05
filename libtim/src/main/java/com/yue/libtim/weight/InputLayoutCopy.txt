@@ -1,5 +1,6 @@
-package com.yue.libtim.weight;
+package com.yue.libtim.weight.input;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -14,6 +15,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,9 +34,9 @@ import java.io.File;
 /**
  * @author shimy
  * @create 2020/6/2 14:47
- * @desc 输入底部布局 保留副本
+ * @desc 输入底部布局
  */
-public class InputLayoutCopy extends FrameLayout {
+public class InputLayout extends FrameLayout {
 
 
     private enum InputState {
@@ -57,15 +59,15 @@ public class InputLayoutCopy extends FrameLayout {
     private FrameLayout flMore;
     private AppCompatActivity activity;
 
-    public InputLayoutCopy(@NonNull Context context) {
+    public InputLayout(@NonNull Context context) {
         this(context, null);
     }
 
-    public InputLayoutCopy(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public InputLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public InputLayoutCopy(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public InputLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         View view = View.inflate(context, R.layout.layout_input2, this);
         ivVoice = view.findViewById(R.id.iv_voice);
@@ -97,6 +99,8 @@ public class InputLayoutCopy extends FrameLayout {
                 if (height > 0 && SoftKeyBoardUtil.getSaveHeight() <= 0) {
                     SoftKeyBoardUtil.putHeight(height);
                 }
+                Toast.makeText(activity, "soft展示", Toast.LENGTH_SHORT).show();
+                mInputStatusListener.onInputAreaChanged(true);
             }
 
             @Override
@@ -104,6 +108,8 @@ public class InputLayoutCopy extends FrameLayout {
                 if (height > 0 && SoftKeyBoardUtil.getSaveHeight() <= 0) {
                     SoftKeyBoardUtil.putHeight(height);
                 }
+                mInputStatusListener.onInputAreaChanged(false);
+                Toast.makeText(activity, "soft隐藏", Toast.LENGTH_SHORT).show();
             }
         });
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -163,7 +169,7 @@ public class InputLayoutCopy extends FrameLayout {
         });
         /*发送按钮*/
         btnSend.setOnClickListener(v -> {
-            mInputListener.sendText(etInput.getText().toString());
+            mInputSendListener.sendText(etInput.getText().toString());
         });
     }
 
@@ -175,6 +181,7 @@ public class InputLayoutCopy extends FrameLayout {
             etInput.clearFocus();
             flMore.setVisibility(GONE);
             hideSoftInput();
+            mInputStatusListener.onInputAreaChanged(false);
 
 
             inputState = InputState.INPUT_VOICE;
@@ -183,7 +190,6 @@ public class InputLayoutCopy extends FrameLayout {
             btnVoicePress.setVisibility(VISIBLE);
         } else {
             showSoftInput();
-
             inputState = InputState.INPUT_TEXT;
             ivVoice.setImageResource(R.drawable.ic_input_voice);
             llInputText.setVisibility(VISIBLE);
@@ -206,6 +212,7 @@ public class InputLayoutCopy extends FrameLayout {
             /*清除输入框焦点 清不清都不影响*/
             etInput.clearFocus();
             showFaceOption();
+            mInputStatusListener.onInputAreaChanged(true);
             /*做个延迟,等待showMore fragment高度测量好,否则会有闪烁*/
             postDelayed(() -> {
                 /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
@@ -245,6 +252,7 @@ public class InputLayoutCopy extends FrameLayout {
             /*清除输入框焦点 清不清都不影响*/
             etInput.clearFocus();
             showMoreOption();
+            mInputStatusListener.onInputAreaChanged(true);
             /*做个延迟,等待showMore fragment高度测量好,否则会有闪烁*/
             postDelayed(() -> {
                 /*nothing 不会因为输入框移动布局,防止下一次弹出突然将更多布局和编辑框一起顶到最顶部*/
@@ -296,6 +304,7 @@ public class InputLayoutCopy extends FrameLayout {
         }
     }
 
+    /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
     /*设置更多操作*/
     public void setInputMoreFragment(Fragment inputMoreFragment) {
         this.inputMoreFragment = inputMoreFragment;
@@ -321,7 +330,7 @@ public class InputLayoutCopy extends FrameLayout {
 
     /**
      * 更多按钮开关 默认开
-     * 当enable参数设置为true时 请调用{@link InputLayoutCopy#setInputMoreFragment} 添加更多fragment
+     * 当enable参数设置为true时 请调用{@link InputLayout#setInputMoreFragment} 添加更多fragment
      *
      * @param enable true:开 false:关
      */
@@ -336,7 +345,7 @@ public class InputLayoutCopy extends FrameLayout {
 
     /**
      * 表情按钮开关
-     * 当enable参数设置为true时 请调用{@link InputLayoutCopy#setInputFaceFragment} 添加表情fragment
+     * 当enable参数设置为true时 请调用{@link InputLayout#setInputFaceFragment} 添加表情fragment
      *
      * @param enable true:开 false:关
      */
@@ -348,29 +357,60 @@ public class InputLayoutCopy extends FrameLayout {
         }
     }
 
+    /*- - - - - -- -- - - -- - - -- -- -- - - - -- - - - -----------------------------------*/
+    /**
+     * 语音发送按钮
+     */
+    private float mStartRecordY;
+    private boolean mAudioCancel;
+
+    @SuppressLint("ClickableViewAccessibility")
     private void initVoicePress() {
         btnVoicePress.setOnTouchListener((view, motionEvent) -> {
 
             switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
+                case MotionEvent.ACTION_DOWN:
+                    mStartRecordY = motionEvent.getY();
                     btnVoicePress.setText("松开结束");
                     File dir = new File(TUIKitConstants.MESSAGE_RECORD_DIR);
                     if (!dir.exists())
                         dir.mkdirs();
-                    AudioPlayer.getInstance().startRecord(new AudioPlayer.Callback() {
-                        @Override
-                        public void onCompletion(Boolean success) {
-                            String audioPath = AudioPlayer.getInstance().getPath();
-                            mInputListener.sendVoice(audioPath);
+                    AudioPlayer.getInstance().startRecord(success -> {
+                        String audioPath = AudioPlayer.getInstance().getPath();
+                        int duration = AudioPlayer.getInstance().getDuration();
+                        if (!success || duration == 0) {
+                            mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_FAILED);
+                            return;
                         }
+                        if (mAudioCancel) {
+                            mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_CANCEL);
+                            return;
+                        }
+                        if (duration < 1000) {
+                            mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_TOO_SHORT);
+                            return;
+                        }
+                        mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_STOP);
+
+                        mInputSendListener.sendVoice(audioPath, duration);
                     });
-                }
-                break;
+                    break;
                 case MotionEvent.ACTION_MOVE:
+                    if (motionEvent.getY() - mStartRecordY < -100) {
+                        mAudioCancel = true;
+                        mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_CANCEL);
+                    } else {
+                        if (mAudioCancel) {
+                            mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_START);
+                        }
+                        mAudioCancel = false;
+                    }
                     btnVoicePress.setText("松开结束");
                     break;
                 case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
+                    mAudioCancel = motionEvent.getY() - mStartRecordY < -100;
+                    mInputStatusListener.onVoiceStatusChanged(InputStatusListener.RECORD_STOP);
                     btnVoicePress.setText("按住说话");
                     AudioPlayer.getInstance().stopRecord();
                     break;
@@ -398,34 +438,28 @@ public class InputLayoutCopy extends FrameLayout {
         imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0);
     }
 
+    /**
+     * 设置输入框问题显示
+     *
+     * @param text
+     */
     public void setInputText(String text) {
         etInput.setText(text);
         btnSend.setVisibility(VISIBLE);
         ivMore.setVisibility(GONE);
     }
 
-    private InputListener mInputListener = new InputListener() {
-        @Override
-        public void sendText(String text) {
+    private InputSendListener mInputSendListener = new SimpleInputSendListener();
 
-        }
-
-        @Override
-        public void sendVoice(String path) {
-
-        }
-    };
-
-    public void setInputListener(InputListener inputListener) {
-        this.mInputListener = mInputListener;
+    public void setInputSendListener(InputSendListener inputSendListener) {
+        this.mInputSendListener = inputSendListener;
     }
 
-    public interface InputListener {
-        /*文本消息*/
-        void sendText(String text);
 
-        /*语音消息*/
-        void sendVoice(String path);
+    private InputStatusListener mInputStatusListener = new SimpleInputStatusListener();
+
+    public void setInputStatusListener(InputStatusListener inputStatusListener) {
+        this.mInputStatusListener = inputStatusListener;
     }
 
 
