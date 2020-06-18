@@ -55,7 +55,7 @@ public class Test2Activity extends AppCompatActivity {
             FileUtils.deleteDirFiles(new File(Constants.COMPRESS_IMAGE_CACHE));
         });
         mBinding.btnTest02.setOnClickListener(v -> {
-            AndroidQTransformUtils.copyPathToAndroidQ3(this, mSourcePath,"");
+            AndroidQTransformUtils.copyPathToAndroidQ3(this, mSourcePath, "");
 
         });
         mBinding.btnTest.setOnClickListener(v -> {
@@ -101,19 +101,46 @@ public class Test2Activity extends AppCompatActivity {
                     mSourcePath = selectList.get(0).getPath();
                     File fileCompress = new File(selectList.get(0).getCompressPath());
                     File fileSource = new File(selectList.get(0).getPath());
-                    if (!fileSource.exists()) {
-                        Log.i("shimy", "原图访问失败:" + fileSource.getAbsolutePath());
+//                    File fileOriginal = new File(selectList.get(0).getOriginalPath());
+                    File fileReal = new File(selectList.get(0).getRealPath());
+                    File fileQ = new File(selectList.get(0).getAndroidQToPath());
+
+//                    if (!fileOriginal.exists()) {
+//                        Log.i("shimy", "Original不存在:" + fileOriginal.getAbsolutePath());
+//                    } else {
+//                        Log.i("shimy", "Original：" + fileOriginal.getAbsolutePath());
+//                    }
+                    if (!fileReal.exists()) {
+                        Log.i("shimy", "real不存在:" + fileReal.getAbsolutePath());
                     } else {
-                        Log.i("shimy", "原图路径：" + fileSource.getAbsolutePath());
+                        Log.i("shimy", "real：" + fileReal.getAbsolutePath());
+                    }
+                    if (!fileQ.exists()) {
+                        Log.i("shimy", "androidQ不存在:" + fileQ.getAbsolutePath());
+                    } else {
+                        Log.i("shimy", "androidQ：" + fileQ.getAbsolutePath());
+                    }
+
+
+                    if (!fileSource.exists()) {
+                        Log.i("shimy", "原图访问失败Path:" + fileSource.getAbsolutePath());
+                    } else {
+                        Log.i("shimy", "原图路径Path：" + fileSource.getAbsolutePath());
                     }
 
                     if (!fileCompress.exists()) {
-                        Log.i("shimy", "压缩图访问失败：" + fileCompress.getAbsolutePath());
+                        Log.i("shimy", "压缩图访问失败Compress：" + fileCompress.getAbsolutePath());
                     } else {
-                        Log.i("shimy", "压缩图路径：" + fileCompress.getAbsolutePath());
+                        Log.i("shimy", "压缩图路径Compress：" + fileCompress.getAbsolutePath());
                     }
-                    luban(fileSource);
-                    luban(fileCompress);
+                    String newPath2 = com.luck.picture.lib.tools.AndroidQTransformUtils.copyPathToAndroidQ(this, selectList.get(0).getPath(),
+                            selectList.get(0).getWidth(), selectList.get(0).getHeight(), selectList.get(0).getMimeType(), "");
+                    File newFile2 = new File(newPath2);
+                    Log.i("shimy", "newPath2：" + newFile2.getAbsolutePath());
+                    luban("newFile-path", newFile2);
+                    luban("compressPath", fileCompress);
+                    luban("RealPath", fileReal);
+                    luban("androidQPath", fileQ);
 
                     if (selectList != null && selectList.size() > 0) {
                         Glide.with(this)
@@ -134,7 +161,7 @@ public class Test2Activity extends AppCompatActivity {
                             .into(mBinding.ivShow);
                     new Thread(() -> {
 
-                        String newPath = AndroidQTransformUtils.copyPathToAndroidQ3(Test2Activity.this, mSourcePath,"");
+                        String newPath = AndroidQTransformUtils.copyPathToAndroidQ3(Test2Activity.this, mSourcePath, "");
                         if (TextUtils.isEmpty(newPath)) {
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -144,7 +171,7 @@ public class Test2Activity extends AppCompatActivity {
                             });
                             return;
                         }
-                        luban(new File(newPath));
+                        luban("q3", new File(newPath));
                     }).start();
 
                 }
@@ -154,7 +181,7 @@ public class Test2Activity extends AppCompatActivity {
     }
 
 
-    private void luban(File file) {
+    private void luban(String tag, File file) {
         Luban.with(this)
                 .load(file)
                 .ignoreBy(10)
@@ -175,9 +202,9 @@ public class Test2Activity extends AppCompatActivity {
                     public void onSuccess(File file) {
                         // TODO 压缩成功后调用，返回压缩后的图片文件
                         if (!file.exists()) {
-                            Log.i("shimy", "鲁班图访问失败：" + file.getAbsolutePath());
+                            Log.i("shimy", tag + "鲁班图访问失败：" + file.getAbsolutePath());
                         } else {
-                            Log.i("shimy", "鲁班图路径：" + file.getAbsolutePath());
+                            Log.i("shimy", tag + "鲁班图路径：" + file.getAbsolutePath());
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

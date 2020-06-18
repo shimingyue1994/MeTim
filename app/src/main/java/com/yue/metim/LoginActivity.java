@@ -1,5 +1,6 @@
 package com.yue.metim;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.tencent.imsdk.TIMCallBack;
 import com.tencent.imsdk.TIMManager;
 import com.tencent.imsdk.v2.V2TIMCallback;
 import com.tencent.imsdk.v2.V2TIMImageElem;
@@ -28,17 +30,32 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_login);
         mBinding.btnLogin.setOnClickListener(v -> {
-            login(User.userId01, User.userSign01);
+            login2(User.userId01, User.userSign01);
         });
         mBinding.btnLogin2.setOnClickListener(v -> {
-            login(User.userId02, User.userSign02);
+            login2("","");
         });
 
         mBinding.btnLogout.setOnClickListener(v -> {
             logout();
         });
     }
+    private void login2(String userId, String userSign) {
+        TIMManager.getInstance().login(
+                userId,
+                userSign,                    //用户帐号签名，由私钥加密获得，具体请参考文档
+                new TIMCallBack() {
+                    @Override
+                    public void onError(int errCode, String errMsg) {
+                        showTip(errCode+errMsg);
+                    }
 
+                    @Override
+                    public void onSuccess() {
+                        showTip("登录成功");
+                    }
+                });
+    }
 
     private void login(String userId, String userSign) {
         mBinding.progress.setVisibility(View.VISIBLE);
@@ -47,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(int code, String message) {
                 mBinding.progress.setVisibility(View.GONE);
-                mBinding.tvStatus.setText("登录失败");
+                mBinding.tvStatus.setText("登录失败"+code+message);
             }
 
             @Override
@@ -81,5 +98,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+    private AlertDialog mDialogTip;
+
+
+    private void showTip(String text) {
+        if (mDialogTip == null && !this.isFinishing()) {
+            mDialogTip = new AlertDialog.Builder(this).create();
+        }
+        mDialogTip.setMessage(text);
+        mDialogTip.show();
+    }
+
 
 }

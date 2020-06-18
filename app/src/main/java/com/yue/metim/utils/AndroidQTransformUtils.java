@@ -120,6 +120,13 @@ public class AndroidQTransformUtils {
         return null;
     }
 
+    /**
+     * 这是错误的方式 没使用getContentResolver获取不到文件
+     * @param ctx
+     * @param url
+     * @param miniType
+     * @return
+     */
     public static String copyPathToAndroidQ3(Context ctx, String url, String miniType) {
 
         ContentResolver resolver = ctx.getContentResolver();
