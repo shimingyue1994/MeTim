@@ -19,6 +19,12 @@ import com.yue.metim.databinding.ActivityMainBinding;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author shimy
+ * @create 2020/6/19 14:23
+ * @desc 注意 在选择图片更新消息列表是会有视图显示大小bug,导致滑动不到底部，请在选择图片返回时计算好图片大小 然后再mItems.add(ImageMessageVo) 然后再更新recycler，
+ * 以防止scrollToEnd 于图片item加载前执行
+ */
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding mBinding;
